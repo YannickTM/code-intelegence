@@ -515,6 +515,43 @@ func TestExtractImports_Rust_ResolvePath(t *testing.T) {
 			t.Errorf("stdlib import should have empty TargetFilePath, got %q", imp.TargetFilePath)
 		}
 	})
+
+	t.Run("mod declaration from crate root", func(t *testing.T) {
+		imports := parseAndExtractImports(t, "rust", "src/main.rs",
+			`mod handlers;`)
+		imp := assertImportExists(t, imports, "handlers")
+		if imp == nil {
+			return
+		}
+		if imp.TargetFilePath != "src/handlers" {
+			t.Errorf("TargetFilePath = %q, want %q", imp.TargetFilePath, "src/handlers")
+		}
+	})
+
+	t.Run("mod declaration from mod.rs", func(t *testing.T) {
+		imports := parseAndExtractImports(t, "rust", "src/handlers/mod.rs",
+			`mod auth;`)
+		imp := assertImportExists(t, imports, "auth")
+		if imp == nil {
+			return
+		}
+		if imp.TargetFilePath != "src/handlers/auth" {
+			t.Errorf("TargetFilePath = %q, want %q", imp.TargetFilePath, "src/handlers/auth")
+		}
+	})
+
+	t.Run("bare use path with local mod resolves correctly", func(t *testing.T) {
+		imports := parseAndExtractImports(t, "rust", "src/main.rs",
+			`mod error;
+use error::RefreshTokenFailedError;`)
+		imp := assertImportExists(t, imports, "error::RefreshTokenFailedError")
+		if imp == nil {
+			return
+		}
+		if imp.TargetFilePath != "src/error/RefreshTokenFailedError" {
+			t.Errorf("TargetFilePath = %q, want %q", imp.TargetFilePath, "src/error/RefreshTokenFailedError")
+		}
+	})
 }
 
 // ---------------------------------------------------------------------------
@@ -603,6 +640,66 @@ func TestExtractImports_Rust(t *testing.T) {
 		imp := assertImportExists(t, imports, "super::models")
 		if imp != nil && imp.ImportType != "INTERNAL" {
 			t.Errorf("type = %q, want INTERNAL", imp.ImportType)
+		}
+	})
+
+	t.Run("mod declaration", func(t *testing.T) {
+		imports := parseAndExtractImports(t, "rust", "src/main.rs",
+			`mod handlers;`)
+		imp := assertImportExists(t, imports, "handlers")
+		if imp == nil {
+			return
+		}
+		if imp.ImportType != "INTERNAL" {
+			t.Errorf("type = %q, want INTERNAL", imp.ImportType)
+		}
+	})
+
+	t.Run("pub mod declaration", func(t *testing.T) {
+		imports := parseAndExtractImports(t, "rust", "src/lib.rs",
+			`pub mod handlers;`)
+		imp := assertImportExists(t, imports, "handlers")
+		if imp == nil {
+			return
+		}
+		if imp.ImportType != "INTERNAL" {
+			t.Errorf("type = %q, want INTERNAL", imp.ImportType)
+		}
+	})
+
+	t.Run("inline mod block is not an import", func(t *testing.T) {
+		imports := parseAndExtractImports(t, "rust", "src/main.rs",
+			`mod tests {
+    fn test_something() {}
+}`)
+		if len(imports) != 0 {
+			t.Errorf("expected 0 imports for inline mod block, got %d: %v", len(imports), imports)
+		}
+	})
+
+	t.Run("bare use path with local mod is internal", func(t *testing.T) {
+		imports := parseAndExtractImports(t, "rust", "src/main.rs",
+			`mod error;
+use error::RefreshTokenFailedError;`)
+		// mod declaration itself
+		modImp := assertImportExists(t, imports, "error")
+		if modImp != nil && modImp.ImportType != "INTERNAL" {
+			t.Errorf("mod import type = %q, want INTERNAL", modImp.ImportType)
+		}
+		// bare use path should be INTERNAL because error is a local mod
+		useImp := assertImportExists(t, imports, "error::RefreshTokenFailedError")
+		if useImp != nil && useImp.ImportType != "INTERNAL" {
+			t.Errorf("bare use type = %q, want INTERNAL", useImp.ImportType)
+		}
+	})
+
+	t.Run("bare use path without local mod is external", func(t *testing.T) {
+		// Regression: serde::Serialize without mod serde should still be EXTERNAL.
+		imports := parseAndExtractImports(t, "rust", "src/main.rs",
+			`use serde::Serialize;`)
+		imp := assertImportExists(t, imports, "serde::Serialize")
+		if imp != nil && imp.ImportType != "EXTERNAL" {
+			t.Errorf("type = %q, want EXTERNAL", imp.ImportType)
 		}
 	})
 }
