@@ -1,0 +1,102 @@
+DROP INDEX IF EXISTS idx_index_snapshots_commit_id;
+ALTER TABLE IF EXISTS index_snapshots DROP CONSTRAINT IF EXISTS fk_snapshots_commit;
+ALTER TABLE IF EXISTS index_snapshots DROP COLUMN IF EXISTS commit_id;
+
+DROP INDEX IF EXISTS idx_cfd_idempotent;
+DROP INDEX IF EXISTS idx_commit_file_diffs_old_file_path;
+DROP INDEX IF EXISTS idx_commit_file_diffs_file_path;
+DROP INDEX IF EXISTS idx_commit_file_diffs_project_commit;
+DROP INDEX IF EXISTS idx_commit_file_diffs_commit;
+ALTER TABLE IF EXISTS commit_file_diffs DROP CONSTRAINT IF EXISTS fk_cfd_commit;
+ALTER TABLE IF EXISTS commit_file_diffs DROP CONSTRAINT IF EXISTS fk_cfd_parent;
+DROP TABLE IF EXISTS commit_file_diffs;
+
+DROP INDEX IF EXISTS idx_commit_parents_parent;
+DROP TABLE IF EXISTS commit_parents;
+
+DROP INDEX IF EXISTS idx_commits_project_date;
+DROP TABLE IF EXISTS commits;
+
+DROP INDEX IF EXISTS idx_files_content_id;
+ALTER TABLE IF EXISTS files DROP CONSTRAINT IF EXISTS fk_files_file_content;
+ALTER TABLE IF EXISTS files DROP COLUMN IF EXISTS file_content_id;
+
+DROP TABLE IF EXISTS file_contents;
+
+DROP INDEX IF EXISTS idx_sessions_expires;
+DROP INDEX IF EXISTS idx_sessions_user;
+DROP TABLE IF EXISTS sessions;
+DROP INDEX IF EXISTS idx_query_log_project_time;
+DROP TABLE IF EXISTS query_log;
+DROP VIEW IF EXISTS api_key_project_access;
+DROP FUNCTION IF EXISTS role_rank(TEXT);
+DROP INDEX IF EXISTS idx_api_keys_key_hash;
+DROP INDEX IF EXISTS idx_api_keys_created_by_personal;
+DROP INDEX IF EXISTS idx_api_keys_project;
+DROP TABLE IF EXISTS api_keys;
+DROP INDEX IF EXISTS idx_network_calls_snapshot;
+DROP INDEX IF EXISTS idx_network_calls_file;
+DROP TABLE IF EXISTS network_calls;
+DROP INDEX IF EXISTS idx_jsx_usages_snapshot;
+DROP INDEX IF EXISTS idx_jsx_usages_file;
+DROP TABLE IF EXISTS jsx_usages;
+DROP INDEX IF EXISTS idx_symbol_references_target;
+DROP INDEX IF EXISTS idx_symbol_references_source;
+DROP INDEX IF EXISTS idx_symbol_references_snapshot;
+DROP INDEX IF EXISTS idx_symbol_references_file;
+DROP TABLE IF EXISTS symbol_references;
+DROP INDEX IF EXISTS idx_exports_symbol;
+DROP INDEX IF EXISTS idx_exports_snapshot;
+DROP INDEX IF EXISTS idx_exports_file;
+DROP TABLE IF EXISTS exports;
+DROP INDEX IF EXISTS idx_deps_target;
+DROP INDEX IF EXISTS idx_deps_source;
+DROP TABLE IF EXISTS dependencies;
+DROP INDEX IF EXISTS idx_chunks_file;
+DROP INDEX IF EXISTS idx_chunks_snapshot;
+DROP TABLE IF EXISTS code_chunks;
+DROP INDEX IF EXISTS idx_symbols_lookup;
+DROP TABLE IF EXISTS symbols;
+DROP TABLE IF EXISTS files;
+DROP INDEX IF EXISTS idx_jobs_project_created;
+DROP TABLE IF EXISTS indexing_jobs;
+DROP TABLE IF EXISTS index_snapshots;
+DROP TABLE IF EXISTS embedding_versions;
+DROP TRIGGER IF EXISTS validate_llm_provider_configs_selected_global_reference_trg ON llm_provider_configs;
+DROP TRIGGER IF EXISTS validate_embedding_provider_configs_selected_global_reference_trg ON embedding_provider_configs;
+DROP TRIGGER IF EXISTS validate_projects_selected_llm_global_config_trg ON projects;
+DROP TRIGGER IF EXISTS validate_projects_selected_embedding_global_config_trg ON projects;
+DROP FUNCTION IF EXISTS validate_projects_selected_global_configs();
+ALTER TABLE IF EXISTS projects
+  DROP CONSTRAINT IF EXISTS projects_selected_llm_global_config_id_fkey;
+ALTER TABLE IF EXISTS projects
+  DROP CONSTRAINT IF EXISTS projects_selected_embedding_global_config_id_fkey;
+DROP INDEX IF EXISTS idx_projects_selected_llm_global_config_id;
+DROP INDEX IF EXISTS idx_projects_selected_embedding_global_config_id;
+DROP INDEX IF EXISTS idx_active_project_assignments_by_key;
+DROP INDEX IF EXISTS idx_project_active_ssh_key;
+DROP TABLE IF EXISTS project_ssh_key_assignments;
+DROP TABLE IF EXISTS ssh_keys;
+DROP INDEX IF EXISTS idx_pm_project_role;
+DROP INDEX IF EXISTS idx_pm_user;
+DROP INDEX IF EXISTS idx_pm_project;
+DROP TABLE IF EXISTS project_members;
+DROP INDEX IF EXISTS idx_llm_provider_configs_project_id;
+DROP INDEX IF EXISTS idx_single_active_project_llm_provider_config;
+DROP INDEX IF EXISTS idx_single_default_global_llm_provider_config;
+DROP TABLE IF EXISTS llm_provider_configs;
+DROP INDEX IF EXISTS idx_embedding_provider_configs_project_id;
+DROP INDEX IF EXISTS idx_single_active_project_embedding_provider_config;
+DROP INDEX IF EXISTS idx_single_default_global_embedding_provider_config;
+DROP TABLE IF EXISTS embedding_provider_configs;
+DROP TABLE IF EXISTS projects;
+DROP INDEX IF EXISTS idx_upr_role;
+DROP INDEX IF EXISTS idx_upr_user;
+DROP TABLE IF EXISTS user_platform_roles;
+DROP INDEX IF EXISTS idx_users_active;
+DROP INDEX IF EXISTS idx_users_email;
+DROP INDEX IF EXISTS idx_users_username;
+DROP TABLE IF EXISTS users;
+
+DROP EXTENSION IF EXISTS citext;
+DROP EXTENSION IF EXISTS pgcrypto;

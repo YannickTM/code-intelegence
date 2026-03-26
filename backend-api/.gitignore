@@ -1,0 +1,22 @@
+# Go build/test outputs
+/bin/
+/dist/
+/build/
+/tmp/
+*.test
+*.out
+coverage.out
+/coverage/
+
+# Local tooling
+/.air/
+/.gocache/
+
+# Env / logs
+.env
+.env.*
+!.env.example
+*.log
+
+# OS files
+.DS_Store

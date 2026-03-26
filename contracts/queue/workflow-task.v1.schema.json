@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://myjungle.dev/contracts/queue/workflow-task.v1.schema.json",
+  "title": "Workflow Queue Task v1",
+  "description": "Versioned queue-message contract for backend-api -> backend-worker workflow dispatch. The queue message is intentionally only a durable job reference plus minimal observability/routing hints. Workflow-specific request details must be stored in PostgreSQL and loaded by job_id at execution time.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "job_id",
+    "workflow",
+    "enqueued_at"
+  ],
+  "properties": {
+    "job_id": {
+      "$ref": "#/$defs/UUID"
+    },
+    "workflow": {
+      "$ref": "#/$defs/WorkflowName"
+    },
+    "enqueued_at": {
+      "$ref": "#/$defs/DateTime"
+    },
+    "project_id": {
+      "$ref": "#/$defs/UUID",
+      "description": "Optional routing and logging hint. The worker must treat project scope loaded from PostgreSQL by job_id as authoritative."
+    },
+    "trace_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "requested_by": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "description": "Optional observability hint such as user:uuid, api-key:uuid, or system:reason. Durable actor state belongs in PostgreSQL."
+    }
+  },
+  "$defs": {
+    "UUID": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "DateTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "WorkflowName": {
+      "type": "string",
+      "enum": [
+        "full-index",
+        "incremental-index",
+        "code-analysis",
+        "rag-file",
+        "rag-repo",
+        "agent-run"
+      ]
+    }
+  },
+  "examples": [
+    {
+      "job_id": "69dc1de1-5ad3-4ea4-b0f0-f4ad9d1f5ff4",
+      "workflow": "full-index",
+      "enqueued_at": "2026-03-08T11:00:00Z",
+      "project_id": "a8f3d8f6-0e37-45e0-8826-1ce6f57f2244",
+      "requested_by": "user:8fdd1e4f-cf42-4d6d-83a4-e4a6c7080b57"
+    },
+    {
+      "job_id": "c51f6077-27cc-4ce6-b026-14ddb27cfd79",
+      "workflow": "incremental-index",
+      "enqueued_at": "2026-03-08T11:05:00Z",
+      "project_id": "a8f3d8f6-0e37-45e0-8826-1ce6f57f2244",
+      "requested_by": "system:webhook"
+    },
+    {
+      "job_id": "1c8a2917-b05f-47ef-b953-78e8a36d44c3",
+      "workflow": "code-analysis",
+      "enqueued_at": "2026-03-08T11:10:00Z",
+      "project_id": "a8f3d8f6-0e37-45e0-8826-1ce6f57f2244",
+      "trace_id": "req_01JNX6H09YY4Q6B4A0A4K9R9GT"
+    },
+    {
+      "job_id": "929c99c8-7c1f-41e7-855d-575b7fe89b66",
+      "workflow": "rag-file",
+      "enqueued_at": "2026-03-08T11:15:00Z",
+      "requested_by": "api-key:3c808d8c-d433-49f9-b35e-cdf1bb57d696"
+    },
+    {
+      "job_id": "cbdc18f4-0fd0-418c-a970-1ddbaad6fb79",
+      "workflow": "rag-repo",
+      "enqueued_at": "2026-03-08T11:20:00Z",
+      "requested_by": "user:8fdd1e4f-cf42-4d6d-83a4-e4a6c7080b57"
+    },
+    {
+      "job_id": "f0da3643-3ecf-4ba8-91ca-6ee4d76e4481",
+      "workflow": "agent-run",
+      "enqueued_at": "2026-03-08T11:25:00Z",
+      "project_id": "a8f3d8f6-0e37-45e0-8826-1ce6f57f2244",
+      "trace_id": "req_01JNX6P1N9JZQJ4SV2X4S6Y0ZX"
+    }
+  ]
+}

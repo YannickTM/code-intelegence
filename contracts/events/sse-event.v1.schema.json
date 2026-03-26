@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://myjungle.dev/contracts/events/sse-event.v1.schema.json",
+  "title": "SSE Event Envelope v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event",
+    "project_id",
+    "timestamp"
+  ],
+  "properties": {
+    "event": {
+      "type": "string",
+      "enum": [
+        "job:queued",
+        "job:started",
+        "job:progress",
+        "job:completed",
+        "job:failed",
+        "snapshot:activated",
+        "member:added",
+        "member:removed",
+        "member:role_updated"
+      ]
+    },
+    "project_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "job_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "snapshot_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "origin": {
+      "type": "string",
+      "description": "Opaque instance identifier set by the API that published the event. Used by the subscriber to skip re-broadcasting events from the same instance."
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "job_type": {
+          "type": "string",
+          "enum": ["full", "incremental", "rebuild"]
+        },
+        "files_processed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "files_total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "chunks_upserted": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "vectors_deleted": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "error_message": {
+          "type": "string"
+        },
+        "active_commit": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Target user for membership events."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["owner", "admin", "member"],
+          "description": "Role assigned or updated in membership events."
+        },
+        "previous_role": {
+          "type": "string",
+          "enum": ["owner", "admin", "member"],
+          "description": "Previous role before a role_updated event."
+        },
+        "actor_user_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "User who performed the membership action."
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "event": "job:progress",
+      "project_id": "a8f3d8f6-0e37-45e0-8826-1ce6f57f2244",
+      "job_id": "69dc1de1-5ad3-4ea4-b0f0-f4ad9d1f5ff4",
+      "snapshot_id": "0ec48c0f-3ca5-42de-bb24-1f87d6892490",
+      "timestamp": "2026-03-02T10:00:00Z",
+      "data": {
+        "status": "running",
+        "job_type": "incremental",
+        "files_processed": 54,
+        "files_total": 200,
+        "chunks_upserted": 340,
+        "vectors_deleted": 12
+      }
+    },
+    {
+      "event": "member:added",
+      "project_id": "a8f3d8f6-0e37-45e0-8826-1ce6f57f2244",
+      "timestamp": "2026-03-09T14:30:00Z",
+      "data": {
+        "user_id": "b2c4e6f8-1a3b-5c7d-9e0f-a1b2c3d4e5f6",
+        "role": "member",
+        "actor_user_id": "d4e6f8a0-3b5c-7d9e-0f1a-b2c3d4e5f6a7"
+      }
+    }
+  ]
+}

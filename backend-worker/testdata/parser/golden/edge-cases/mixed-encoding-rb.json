@@ -1,0 +1,250 @@
+{
+  "FilePath": "mixed-encoding.rb",
+  "Language": "ruby",
+  "FileHash": "7ba72be1e5484b5167e84ce418490c5878d4ce232bc6574598007308a591100f",
+  "SizeBytes": 257,
+  "LineCount": 17,
+  "Symbols": [
+    {
+      "SymbolID": "sym_eb2dcba7b151a311",
+      "Name": "Caf",
+      "QualifiedName": "Caf",
+      "Kind": "class",
+      "Signature": "class Caf\ufffdHandler",
+      "StartLine": 4,
+      "EndLine": 17,
+      "DocText": "encoding: utf-8\nThis file contains mixed encoding to test graceful handling.",
+      "SymbolHash": "98e85e01b5a9a8f2575651306de9aab91fa004c36213c88d09098fc6bdba77de",
+      "ParentSymbolID": "",
+      "Flags": {
+        "IsExported": true,
+        "IsDefaultExport": false,
+        "IsAsync": false,
+        "IsGenerator": false,
+        "IsStatic": false,
+        "IsAbstract": false,
+        "IsReadonly": false,
+        "IsOptional": false,
+        "IsArrowFunction": false,
+        "IsReactComponentLike": false,
+        "IsHookLike": false
+      },
+      "Modifiers": null,
+      "ReturnType": "",
+      "ParameterTypes": null
+    },
+    {
+      "SymbolID": "sym_d7e40e5c633e76d4",
+      "Name": "initialize",
+      "QualifiedName": "Caf.initialize",
+      "Kind": "function",
+      "Signature": "def initialize(name)",
+      "StartLine": 5,
+      "EndLine": 7,
+      "DocText": "",
+      "SymbolHash": "c1d4f6a11e759a80417353e2af007981e32f702a8bd7bb0737bba430a65758be",
+      "ParentSymbolID": "sym_eb2dcba7b151a311",
+      "Flags": {
+        "IsExported": true,
+        "IsDefaultExport": false,
+        "IsAsync": false,
+        "IsGenerator": false,
+        "IsStatic": false,
+        "IsAbstract": false,
+        "IsReadonly": false,
+        "IsOptional": false,
+        "IsArrowFunction": false,
+        "IsReactComponentLike": false,
+        "IsHookLike": false
+      },
+      "Modifiers": null,
+      "ReturnType": "",
+      "ParameterTypes": null
+    },
+    {
+      "SymbolID": "sym_4cf30cf699388511",
+      "Name": "price",
+      "QualifiedName": "Caf.price",
+      "Kind": "function",
+      "Signature": "def price",
+      "StartLine": 10,
+      "EndLine": 12,
+      "DocText": "Price in \ufffd (pound sign in Latin-1)",
+      "SymbolHash": "c2106b2dd135e9512c18a1fd65e5ca2a1c6844b5abda02879df7cc26ced6ec5e",
+      "ParentSymbolID": "sym_eb2dcba7b151a311",
+      "Flags": {
+        "IsExported": true,
+        "IsDefaultExport": false,
+        "IsAsync": false,
+        "IsGenerator": false,
+        "IsStatic": false,
+        "IsAbstract": false,
+        "IsReadonly": false,
+        "IsOptional": false,
+        "IsArrowFunction": false,
+        "IsReactComponentLike": false,
+        "IsHookLike": false
+      },
+      "Modifiers": null,
+      "ReturnType": "",
+      "ParameterTypes": null
+    },
+    {
+      "SymbolID": "sym_b48787a2df4adeb9",
+      "Name": "to_s",
+      "QualifiedName": "Caf.to_s",
+      "Kind": "function",
+      "Signature": "def to_s",
+      "StartLine": 14,
+      "EndLine": 16,
+      "DocText": "",
+      "SymbolHash": "7d328bb8423a655149ac508863200deaa2614a64736e671e23169f4c0680cae6",
+      "ParentSymbolID": "sym_eb2dcba7b151a311",
+      "Flags": {
+        "IsExported": true,
+        "IsDefaultExport": false,
+        "IsAsync": false,
+        "IsGenerator": false,
+        "IsStatic": false,
+        "IsAbstract": false,
+        "IsReadonly": false,
+        "IsOptional": false,
+        "IsArrowFunction": false,
+        "IsReactComponentLike": false,
+        "IsHookLike": false
+      },
+      "Modifiers": null,
+      "ReturnType": "",
+      "ParameterTypes": null
+    }
+  ],
+  "Imports": [],
+  "Chunks": [
+    {
+      "ChunkID": "mixed-encoding.rb:module_context:1-3",
+      "SymbolID": "",
+      "ChunkType": "module_context",
+      "ChunkHash": "72c84d2f91fbaf80840fc254978b8b0e32d54a05b6fcf198987462cc83ca7795",
+      "Content": "# encoding: utf-8\n# This file contains mixed encoding to test graceful handling.\n",
+      "ContextBefore": "",
+      "ContextAfter": "",
+      "StartLine": 1,
+      "EndLine": 3,
+      "EstimatedTokens": 21,
+      "OwnerQualifiedName": "",
+      "OwnerKind": "",
+      "IsExportedContext": false,
+      "SemanticRole": "implementation"
+    },
+    {
+      "ChunkID": "mixed-encoding.rb:class:4-17",
+      "SymbolID": "sym_eb2dcba7b151a311",
+      "ChunkType": "class",
+      "ChunkHash": "98e85e01b5a9a8f2575651306de9aab91fa004c36213c88d09098fc6bdba77de",
+      "Content": "class Caf\ufffdHandler\n  def initialize(name)\n    @name = name\n  end\n\n  # Price in \ufffd (pound sign in Latin-1)\n  def price\n    42.99\n  end\n\n  def to_s\n    \"Caf\ufffd: #{@name}\"\n  end\nend",
+      "ContextBefore": "File: mixed-encoding.rb \u003e class Caf",
+      "ContextAfter": "",
+      "StartLine": 4,
+      "EndLine": 17,
+      "EstimatedTokens": 44,
+      "OwnerQualifiedName": "Caf",
+      "OwnerKind": "class",
+      "IsExportedContext": true,
+      "SemanticRole": "api_surface"
+    }
+  ],
+  "Issues": [
+    {
+      "Code": "PARSE_ERROR",
+      "Message": "Parse error",
+      "Line": 4,
+      "Column": 10,
+      "Severity": "error"
+    }
+  ],
+  "Exports": [
+    {
+      "ExportID": "exp_58a79c086a9af069",
+      "FilePath": "",
+      "ExportKind": "NAMED",
+      "ExportedName": "Caf",
+      "LocalName": "Caf",
+      "SymbolID": "sym_eb2dcba7b151a311",
+      "SourceModule": "",
+      "Line": 4,
+      "Column": 0
+    }
+  ],
+  "References": null,
+  "JsxUsages": null,
+  "NetworkCalls": null,
+  "Facts": {
+    "HasJsx": false,
+    "HasDefaultExport": false,
+    "HasNamedExports": true,
+    "HasTopLevelSideEffects": false,
+    "HasReactHookCalls": false,
+    "HasFetchCalls": false,
+    "HasClassDeclarations": true,
+    "HasTests": false,
+    "HasConfigPatterns": false,
+    "JsxRuntime": ""
+  },
+  "Metadata": {
+    "ParserVersion": "1.0.0",
+    "GrammarVersion": "1.0.0",
+    "EnabledExtractors": [
+      "symbols",
+      "imports",
+      "exports",
+      "references",
+      "network_calls",
+      "chunks",
+      "diagnostics"
+    ]
+  },
+  "ExtractorStatuses": [
+    {
+      "ExtractorName": "symbols",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "imports",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "exports",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "references",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "network_calls",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "chunks",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "diagnostics",
+      "Status": "OK",
+      "IssueCount": 1,
+      "Message": ""
+    }
+  ]
+}

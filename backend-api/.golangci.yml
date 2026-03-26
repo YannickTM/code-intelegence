@@ -1,0 +1,51 @@
+version: "2"
+
+linters:
+  enable:
+    - errcheck
+    - govet
+    - staticcheck
+    - unused
+    - ineffassign
+    - misspell
+    - unconvert
+    - unparam
+    - gocritic
+    - revive
+    - errorlint
+    - bodyclose
+    - noctx
+    - exhaustive
+    - copyloopvar
+
+linters-settings:
+  revive:
+    rules:
+      - name: blank-imports
+      - name: exported
+        arguments: [checkPrivateReceivers]
+      - name: unused-parameter
+      - name: unreachable-code
+      - name: redefines-builtin-id
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - style
+    disabled-checks:
+      - hugeParam
+  exhaustive:
+    default-signifies-exhaustive: true
+  misspell:
+    locale: US
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes: myjungle/backend-api
+
+issues:
+  max-issues-per-linter: 50
+  max-same-issues: 5

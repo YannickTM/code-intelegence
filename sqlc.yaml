@@ -1,0 +1,16 @@
+version: "2"
+
+sql:
+  - engine: "postgresql"
+    schema:
+      - "datastore/postgres/migrations/000001_init.up.sql"
+    queries:
+      - "datastore/postgres/queries"
+    gen:
+      go:
+        package: "db"
+        out: "datastore/postgres/sqlc"
+        sql_package: "pgx/v5"
+        emit_json_tags: true
+        emit_interface: true
+        emit_empty_slices: true

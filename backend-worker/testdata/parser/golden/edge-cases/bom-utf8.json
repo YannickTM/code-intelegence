@@ -1,0 +1,258 @@
+{
+  "FilePath": "bom-utf8.ts",
+  "Language": "typescript",
+  "FileHash": "9f1acf9aa9d5dafe2711fc8b0fc0c8aac88d3597107475f2d8fedc0a12712d63",
+  "SizeBytes": 341,
+  "LineCount": 13,
+  "Symbols": [
+    {
+      "SymbolID": "sym_beeaf02c403d2b75",
+      "Name": "BomTest",
+      "QualifiedName": "BomTest",
+      "Kind": "interface",
+      "Signature": "interface BomTest",
+      "StartLine": 4,
+      "EndLine": 7,
+      "DocText": "",
+      "SymbolHash": "62d7ebe8224716a95da7cd986a670689268e0aff2b8a0ddb9bed502580ede27c",
+      "ParentSymbolID": "",
+      "Flags": {
+        "IsExported": true,
+        "IsDefaultExport": false,
+        "IsAsync": false,
+        "IsGenerator": false,
+        "IsStatic": false,
+        "IsAbstract": false,
+        "IsReadonly": false,
+        "IsOptional": false,
+        "IsArrowFunction": false,
+        "IsReactComponentLike": false,
+        "IsHookLike": false
+      },
+      "Modifiers": null,
+      "ReturnType": "",
+      "ParameterTypes": null
+    },
+    {
+      "SymbolID": "sym_24a0d3702dbf301d",
+      "Name": "processBom",
+      "QualifiedName": "processBom",
+      "Kind": "function",
+      "Signature": "function processBom(input: BomTest): string",
+      "StartLine": 9,
+      "EndLine": 11,
+      "DocText": "",
+      "SymbolHash": "212a6acf322c1bbad266d6878210e2de31a1070b64fe3718ac42c40a6fcfa00a",
+      "ParentSymbolID": "",
+      "Flags": {
+        "IsExported": true,
+        "IsDefaultExport": false,
+        "IsAsync": false,
+        "IsGenerator": false,
+        "IsStatic": false,
+        "IsAbstract": false,
+        "IsReadonly": false,
+        "IsOptional": false,
+        "IsArrowFunction": false,
+        "IsReactComponentLike": false,
+        "IsHookLike": false
+      },
+      "Modifiers": null,
+      "ReturnType": "",
+      "ParameterTypes": null
+    },
+    {
+      "SymbolID": "sym_107c11587eee7846",
+      "Name": "DEFAULT_VALUE",
+      "QualifiedName": "DEFAULT_VALUE",
+      "Kind": "variable",
+      "Signature": "const DEFAULT_VALUE: BomTest =",
+      "StartLine": 13,
+      "EndLine": 13,
+      "DocText": "",
+      "SymbolHash": "535a9a7bebfd467fe19bfaf6bd399761bda4c4d7ee3698f85ec887d208290cbc",
+      "ParentSymbolID": "",
+      "Flags": {
+        "IsExported": false,
+        "IsDefaultExport": false,
+        "IsAsync": false,
+        "IsGenerator": false,
+        "IsStatic": false,
+        "IsAbstract": false,
+        "IsReadonly": false,
+        "IsOptional": false,
+        "IsArrowFunction": false,
+        "IsReactComponentLike": false,
+        "IsHookLike": false
+      },
+      "Modifiers": null,
+      "ReturnType": "",
+      "ParameterTypes": null
+    }
+  ],
+  "Imports": [],
+  "Chunks": [
+    {
+      "ChunkID": "bom-utf8.ts:module_context:1-3",
+      "SymbolID": "",
+      "ChunkType": "module_context",
+      "ChunkHash": "037174154e92cdeb495cda66c9e2cfd65ae5dc8884d9a71d0aa5c80e97cb1ead",
+      "Content": "// UTF-8 BOM file — the first 3 bytes are the BOM marker.\n// This tests that the parser strips the BOM before parsing.\n",
+      "ContextBefore": "",
+      "ContextAfter": "",
+      "StartLine": 1,
+      "EndLine": 3,
+      "EstimatedTokens": 31,
+      "OwnerQualifiedName": "",
+      "OwnerKind": "",
+      "IsExportedContext": false,
+      "SemanticRole": "implementation"
+    },
+    {
+      "ChunkID": "bom-utf8.ts:class:4-7",
+      "SymbolID": "sym_beeaf02c403d2b75",
+      "ChunkType": "class",
+      "ChunkHash": "e84d7d39859e52d57f3d1c7c5667f4c29abb4fe174e52f85c2c129e428e55d5f",
+      "Content": "export interface BomTest {\n  id: string;\n  value: number;\n}",
+      "ContextBefore": "File: bom-utf8.ts \u003e interface BomTest",
+      "ContextAfter": "",
+      "StartLine": 4,
+      "EndLine": 7,
+      "EstimatedTokens": 15,
+      "OwnerQualifiedName": "BomTest",
+      "OwnerKind": "interface",
+      "IsExportedContext": true,
+      "SemanticRole": "api_surface"
+    },
+    {
+      "ChunkID": "bom-utf8.ts:function:9-11",
+      "SymbolID": "sym_24a0d3702dbf301d",
+      "ChunkType": "function",
+      "ChunkHash": "888161fe7f2abf42dd5f653030ec0c1b6c3b21de058de86450e18323484e38ef",
+      "Content": "export function processBom(input: BomTest): string {\n  return `${input.id}: ${input.value}`;\n}",
+      "ContextBefore": "File: bom-utf8.ts \u003e function processBom",
+      "ContextAfter": "",
+      "StartLine": 9,
+      "EndLine": 11,
+      "EstimatedTokens": 24,
+      "OwnerQualifiedName": "processBom",
+      "OwnerKind": "function",
+      "IsExportedContext": true,
+      "SemanticRole": "api_surface"
+    }
+  ],
+  "Issues": null,
+  "Exports": [
+    {
+      "ExportID": "exp_8b78691d7026fec9",
+      "FilePath": "",
+      "ExportKind": "TYPE_ONLY",
+      "ExportedName": "BomTest",
+      "LocalName": "BomTest",
+      "SymbolID": "sym_beeaf02c403d2b75",
+      "SourceModule": "",
+      "Line": 4,
+      "Column": 0
+    },
+    {
+      "ExportID": "exp_3fd7444466fb304b",
+      "FilePath": "",
+      "ExportKind": "NAMED",
+      "ExportedName": "processBom",
+      "LocalName": "processBom",
+      "SymbolID": "sym_24a0d3702dbf301d",
+      "SourceModule": "",
+      "Line": 9,
+      "Column": 0
+    }
+  ],
+  "References": [
+    {
+      "ReferenceID": "ref_684d42d942f139b3",
+      "SourceFilePath": "",
+      "SourceSymbolID": "sym_107c11587eee7846",
+      "ReferenceKind": "TYPE_REF",
+      "RawText": "BomTest",
+      "TargetName": "BomTest",
+      "QualifiedTargetHint": "",
+      "StartLine": 13,
+      "StartColumn": 21,
+      "EndLine": 13,
+      "EndColumn": 28,
+      "ResolutionScope": "LOCAL",
+      "ResolvedTargetSymbolID": "sym_beeaf02c403d2b75",
+      "Confidence": "HIGH"
+    }
+  ],
+  "JsxUsages": null,
+  "NetworkCalls": null,
+  "Facts": {
+    "HasJsx": false,
+    "HasDefaultExport": false,
+    "HasNamedExports": true,
+    "HasTopLevelSideEffects": false,
+    "HasReactHookCalls": false,
+    "HasFetchCalls": false,
+    "HasClassDeclarations": false,
+    "HasTests": false,
+    "HasConfigPatterns": false,
+    "JsxRuntime": ""
+  },
+  "Metadata": {
+    "ParserVersion": "1.0.0",
+    "GrammarVersion": "1.0.0",
+    "EnabledExtractors": [
+      "symbols",
+      "imports",
+      "exports",
+      "references",
+      "network_calls",
+      "chunks",
+      "diagnostics"
+    ]
+  },
+  "ExtractorStatuses": [
+    {
+      "ExtractorName": "symbols",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "imports",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "exports",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "references",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "network_calls",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "chunks",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "diagnostics",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    }
+  ]
+}

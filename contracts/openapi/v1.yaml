@@ -1,0 +1,4428 @@
+openapi: 3.0.3
+info:
+  title: MYJUNGLE Backend API
+  version: 1.3.0
+  description: |
+    Contract for backoffice and MCP integrations.
+    This document tracks the current `backend-api` router surface, including:
+    session auth, platform management, SSH/API key management, project analysis,
+    commit history, SSE streams, and both embedding and LLM provider settings.
+
+    ## Error Status Codes
+    - `400` - invalid JSON body or malformed query/path parameters
+    - `401` - authentication required or invalid credentials
+    - `403` - insufficient permissions
+    - `404` - resource not found
+    - `409` - conflict
+    - `413` - request body too large
+    - `422` - validation error
+    - `500` - internal server error
+    - `502` - upstream dependency unavailable
+servers:
+  - url: http://localhost:8080
+    description: Local
+security:
+  - BearerAuth: []
+  - CookieAuth: []
+tags:
+  - name: Health
+  - name: Auth
+  - name: Users
+  - name: Projects
+  - name: Members
+  - name: SSH Keys
+  - name: API Keys
+  - name: Providers
+  - name: Platform Management
+  - name: Settings
+  - name: Indexing
+  - name: Query
+  - name: Commits
+  - name: Dashboard
+  - name: Events
+
+paths:
+  /health/live:
+    get:
+      tags: [Health]
+      operationId: getLiveness
+      security: []
+      responses:
+        "200":
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /health/ready:
+    get:
+      tags: [Health]
+      operationId: getReadiness
+      security: []
+      responses:
+        "200":
+          description: All dependencies healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+        "503":
+          description: One or more dependencies unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /metrics:
+    get:
+      tags: [Health]
+      operationId: getMetrics
+      security: []
+      responses:
+        "200":
+          description: Prometheus metrics payload
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /v1/users:
+    post:
+      tags: [Auth]
+      operationId: registerUser
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterUserRequest"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserEnvelope"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/auth/login:
+    post:
+      tags: [Auth]
+      operationId: login
+      security: []
+      description: |
+        Phase 1 uses username-only authentication on trusted local networks.
+        Creates a server-side session and returns the raw token plus a Set-Cookie header.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful
+          headers:
+            Set-Cookie:
+              description: Session cookie (`mj_session`)
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/auth/logout:
+    post:
+      tags: [Auth]
+      operationId: logout
+      description: Destroys the current session and clears the session cookie.
+      responses:
+        "204":
+          description: Logged out
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/users/me:
+    get:
+      tags: [Users]
+      operationId: getCurrentUser
+      description: Returns the current user profile and platform roles.
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrentUserResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+    patch:
+      tags: [Users]
+      operationId: updateCurrentUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCurrentUserRequest"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserEnvelope"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/users/me/projects:
+    get:
+      tags: [Users]
+      operationId: listCurrentUserProjects
+      description: Lists the current user's visible projects, including project health fields.
+      responses:
+        "200":
+          description: Projects visible to the current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProjectListResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/users/lookup:
+    get:
+      tags: [Users]
+      operationId: lookupUser
+      description: Resolves a user by username first, then by email.
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Matched user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserLookupResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/users/me/keys:
+    get:
+      tags: [API Keys]
+      operationId: listPersonalKeys
+      responses:
+        "200":
+          description: Active personal API keys
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIKeyListResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+    post:
+      tags: [API Keys]
+      operationId: createPersonalKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAPIKeyRequest"
+      responses:
+        "201":
+          description: Personal key created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateAPIKeyResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/users/me/keys/{key_id}:
+    parameters:
+      - $ref: "#/components/parameters/APIKeyID"
+    delete:
+      tags: [API Keys]
+      operationId: deletePersonalKey
+      responses:
+        "204":
+          description: Personal key deleted
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/ssh-keys:
+    get:
+      tags: [SSH Keys]
+      operationId: listSSHKeys
+      responses:
+        "200":
+          description: SSH keys owned by the current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SSHKeyListResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+    post:
+      tags: [SSH Keys]
+      operationId: createSSHKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSSHKeyRequest"
+      responses:
+        "201":
+          description: SSH key created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SSHKey"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/ssh-keys/{ssh_key_id}:
+    parameters:
+      - $ref: "#/components/parameters/SSHKeyID"
+    get:
+      tags: [SSH Keys]
+      operationId: getSSHKey
+      responses:
+        "200":
+          description: SSH key detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SSHKey"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/ssh-keys/{ssh_key_id}/projects:
+    parameters:
+      - $ref: "#/components/parameters/SSHKeyID"
+    get:
+      tags: [SSH Keys]
+      operationId: listSSHKeyProjects
+      responses:
+        "200":
+          description: Projects currently assigned to the SSH key
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SSHKeyProjectListResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/ssh-keys/{ssh_key_id}/retire:
+    parameters:
+      - $ref: "#/components/parameters/SSHKeyID"
+    post:
+      tags: [SSH Keys]
+      operationId: retireSSHKey
+      responses:
+        "200":
+          description: SSH key retired
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SSHKey"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects:
+    get:
+      tags: [Projects]
+      operationId: listProjects
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 200
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      responses:
+        "200":
+          description: Projects the current user belongs to
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectListResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+    post:
+      tags: [Projects]
+      operationId: createProject
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProjectRequest"
+      responses:
+        "201":
+          description: Project created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateProjectResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [Projects]
+      operationId: getProject
+      responses:
+        "200":
+          description: Project detail including indexing health
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectHealth"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+    patch:
+      tags: [Projects]
+      operationId: updateProject
+      description: User session required. Project admin role required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProjectRequest"
+      responses:
+        "200":
+          description: Updated project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+    delete:
+      tags: [Projects]
+      operationId: deleteProject
+      description: User session required. Project owner role required.
+      responses:
+        "204":
+          description: Project deleted
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/ssh-key:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [Projects]
+      operationId: getProjectSSHKey
+      responses:
+        "200":
+          description: Assigned SSH key summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SSHKeySummary"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+    put:
+      tags: [Projects]
+      operationId: setProjectSSHKey
+      description: User session required. Project admin role required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignProjectSSHKeyRequest"
+      responses:
+        "200":
+          description: SSH key assignment updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SSHKeySummary"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+    delete:
+      tags: [Projects]
+      operationId: removeProjectSSHKey
+      description: User session required. Project admin role required.
+      responses:
+        "204":
+          description: SSH key assignment removed
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/members:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [Members]
+      operationId: listProjectMembers
+      responses:
+        "200":
+          description: Project members
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectMemberListResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+    post:
+      tags: [Members]
+      operationId: addProjectMember
+      description: User session required. Project admin role required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddMemberRequest"
+      responses:
+        "201":
+          description: Member added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectMemberWithUser"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/members/{user_id}:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+      - $ref: "#/components/parameters/UserID"
+    patch:
+      tags: [Members]
+      operationId: updateProjectMemberRole
+      description: User session required. Project admin role required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateMemberRoleRequest"
+      responses:
+        "200":
+          description: Member updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectMemberWithUser"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+    delete:
+      tags: [Members]
+      operationId: removeProjectMember
+      description: User session required. Members may remove themselves; stronger removals are enforced server-side.
+      responses:
+        "204":
+          description: Member removed
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/keys:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [API Keys]
+      operationId: listProjectKeys
+      description: User session required. Project admin role required.
+      responses:
+        "200":
+          description: Project API keys
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIKeyListResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+    post:
+      tags: [API Keys]
+      operationId: createProjectKey
+      description: User session required. Project admin role required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAPIKeyRequest"
+      responses:
+        "201":
+          description: Project key created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateAPIKeyResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/keys/{key_id}:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+      - $ref: "#/components/parameters/APIKeyID"
+    delete:
+      tags: [API Keys]
+      operationId: deleteProjectKey
+      description: User session required. Project admin role required.
+      responses:
+        "204":
+          description: Project key deleted
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/settings/providers:
+    get:
+      tags: [Providers]
+      operationId: listSupportedProviders
+      responses:
+        "200":
+          description: Provider IDs exposed by the backend
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProviderCatalogResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/platform-management/users:
+    get:
+      tags: [Platform Management]
+      operationId: listPlatformUsers
+      description: User session plus `platform_admin` role required.
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 200
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: is_active
+          schema:
+            type: boolean
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [username, created_at]
+            default: created_at
+      responses:
+        "200":
+          description: Platform user list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUserListResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/platform-management/users/{user_id}:
+    parameters:
+      - $ref: "#/components/parameters/UserID"
+    get:
+      tags: [Platform Management]
+      operationId: getPlatformUser
+      description: User session plus `platform_admin` role required.
+      responses:
+        "200":
+          description: Platform user detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUserDetailResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+    patch:
+      tags: [Platform Management]
+      operationId: updatePlatformUser
+      description: User session plus `platform_admin` role required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePlatformUserRequest"
+      responses:
+        "200":
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserEnvelope"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/platform-management/users/{user_id}/deactivate:
+    parameters:
+      - $ref: "#/components/parameters/UserID"
+    post:
+      tags: [Platform Management]
+      operationId: deactivatePlatformUser
+      description: User session plus `platform_admin` role required.
+      responses:
+        "200":
+          description: User deactivated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserActionResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/platform-management/users/{user_id}/activate:
+    parameters:
+      - $ref: "#/components/parameters/UserID"
+    post:
+      tags: [Platform Management]
+      operationId: activatePlatformUser
+      description: User session plus `platform_admin` role required.
+      responses:
+        "200":
+          description: User activated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserActionResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/platform-management/platform-roles:
+    get:
+      tags: [Platform Management]
+      operationId: listPlatformRoles
+      description: User session plus `platform_admin` role required.
+      responses:
+        "200":
+          description: Active platform role assignments
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlatformRoleListResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+    post:
+      tags: [Platform Management]
+      operationId: grantPlatformRole
+      description: User session plus `platform_admin` role required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GrantPlatformRoleRequest"
+      responses:
+        "201":
+          description: Platform role granted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlatformRoleGrantResponse"
+        "200":
+          description: Platform role was already present
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlatformRoleActionResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/platform-management/platform-roles/{user_id}/{role}:
+    parameters:
+      - $ref: "#/components/parameters/UserID"
+      - $ref: "#/components/parameters/PlatformRole"
+    delete:
+      tags: [Platform Management]
+      operationId: revokePlatformRole
+      description: User session plus `platform_admin` role required.
+      responses:
+        "200":
+          description: Platform role revoked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlatformRoleActionResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/platform-management/settings/embedding:
+    get:
+      tags: [Settings]
+      operationId: listGlobalEmbeddingConfigs
+      description: User session plus `platform_admin` role required.
+      responses:
+        "200":
+          description: Global embedding configs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmbeddingConfigListResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+    put:
+      tags: [Settings]
+      operationId: upsertDefaultGlobalEmbeddingConfig
+      description: User session plus `platform_admin` role required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GlobalEmbeddingConfigRequest"
+      responses:
+        "200":
+          description: Default global embedding config updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmbeddingConfigEnvelope"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+    post:
+      tags: [Settings]
+      operationId: createAdditionalGlobalEmbeddingConfig
+      description: User session plus `platform_admin` role required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GlobalEmbeddingConfigRequest"
+      responses:
+        "201":
+          description: Additional global embedding config created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmbeddingConfigEnvelope"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/platform-management/settings/embedding/test:
+    post:
+      tags: [Settings]
+      operationId: testGlobalEmbeddingConnectivity
+      description: |
+        User session plus `platform_admin` role required.
+        When the body is omitted or empty, the active global default config is tested.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmbeddingConnectivityRequest"
+      responses:
+        "200":
+          description: Connectivity test result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConnectivityTestResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "413":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/platform-management/settings/embedding/{config_id}:
+    parameters:
+      - $ref: "#/components/parameters/ConfigID"
+    patch:
+      tags: [Settings]
+      operationId: patchGlobalEmbeddingConfig
+      description: User session plus `platform_admin` role required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchGlobalEmbeddingConfigRequest"
+      responses:
+        "200":
+          description: Global embedding config updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmbeddingConfigEnvelope"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+    delete:
+      tags: [Settings]
+      operationId: deleteGlobalEmbeddingConfig
+      description: User session plus `platform_admin` role required.
+      responses:
+        "200":
+          description: Global embedding config deactivated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfigActionResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/platform-management/settings/embedding/{config_id}/promote:
+    parameters:
+      - $ref: "#/components/parameters/ConfigID"
+    post:
+      tags: [Settings]
+      operationId: promoteGlobalEmbeddingConfig
+      description: User session plus `platform_admin` role required.
+      responses:
+        "200":
+          description: Provider promoted to default
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmbeddingPromotionResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/platform-management/settings/embedding/{config_id}/test:
+    parameters:
+      - $ref: "#/components/parameters/ConfigID"
+    post:
+      tags: [Settings]
+      operationId: testGlobalEmbeddingConfigById
+      description: User session plus `platform_admin` role required.
+      responses:
+        "200":
+          description: Connectivity test result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConnectivityTestResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/platform-management/settings/llm:
+    get:
+      tags: [Settings]
+      operationId: listGlobalLLMConfigs
+      description: User session plus `platform_admin` role required.
+      responses:
+        "200":
+          description: Global LLM configs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LLMConfigListResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+    put:
+      tags: [Settings]
+      operationId: upsertDefaultGlobalLLMConfig
+      description: User session plus `platform_admin` role required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GlobalLLMConfigRequest"
+      responses:
+        "200":
+          description: Default global LLM config updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LLMConfigEnvelope"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+    post:
+      tags: [Settings]
+      operationId: createAdditionalGlobalLLMConfig
+      description: User session plus `platform_admin` role required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GlobalLLMConfigRequest"
+      responses:
+        "201":
+          description: Additional global LLM config created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LLMConfigEnvelope"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/platform-management/settings/llm/test:
+    post:
+      tags: [Settings]
+      operationId: testGlobalLLMConnectivity
+      description: |
+        User session plus `platform_admin` role required.
+        When the body is omitted or empty, the active global default config is tested.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LLMConnectivityRequest"
+      responses:
+        "200":
+          description: Connectivity test result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConnectivityTestResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "413":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/platform-management/settings/llm/{config_id}:
+    parameters:
+      - $ref: "#/components/parameters/ConfigID"
+    patch:
+      tags: [Settings]
+      operationId: patchGlobalLLMConfig
+      description: User session plus `platform_admin` role required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatchGlobalLLMConfigRequest"
+      responses:
+        "200":
+          description: Global LLM config updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LLMConfigEnvelope"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+    delete:
+      tags: [Settings]
+      operationId: deleteGlobalLLMConfig
+      description: User session plus `platform_admin` role required.
+      responses:
+        "200":
+          description: Global LLM config deactivated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConfigActionResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/platform-management/settings/llm/{config_id}/promote:
+    parameters:
+      - $ref: "#/components/parameters/ConfigID"
+    post:
+      tags: [Settings]
+      operationId: promoteGlobalLLMConfig
+      description: User session plus `platform_admin` role required.
+      responses:
+        "200":
+          description: Provider promoted to default
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LLMPromotionResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/platform-management/settings/llm/{config_id}/test:
+    parameters:
+      - $ref: "#/components/parameters/ConfigID"
+    post:
+      tags: [Settings]
+      operationId: testGlobalLLMConfigById
+      description: User session plus `platform_admin` role required.
+      responses:
+        "200":
+          description: Connectivity test result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConnectivityTestResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/platform-management/workers:
+    get:
+      tags: [Platform Management]
+      operationId: listWorkers
+      description: |
+        User session plus `platform_admin` role required.
+        This route is available only when Redis-backed worker status is configured.
+      responses:
+        "200":
+          description: Active worker heartbeats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkerListResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "502":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/dashboard/summary:
+    get:
+      tags: [Dashboard]
+      operationId: getDashboardSummary
+      responses:
+        "200":
+          description: Dashboard summary for the current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/events/stream:
+    get:
+      tags: [Events]
+      operationId: streamEvents
+      responses:
+        "200":
+          description: SSE event stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "503":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/logs/stream:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [Events]
+      operationId: streamProjectLogs
+      description: Keepalive-only SSE stub for project log streaming.
+      responses:
+        "200":
+          description: SSE log stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+        "503":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/index:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    post:
+      tags: [Indexing]
+      operationId: triggerProjectIndex
+      description: Project admin role required. Accepts either a session or project API key with write access.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IndexRequest"
+      responses:
+        "202":
+          description: Indexing job accepted or deduplicated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IndexJob"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "409":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/jobs:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [Indexing]
+      operationId: listProjectJobs
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      responses:
+        "200":
+          description: Project indexing jobs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IndexJobListResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/query/search:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    post:
+      tags: [Query]
+      operationId: searchProjectCode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CodeSearchRequest"
+      responses:
+        "200":
+          description: Code search results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CodeSearchResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/symbols:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [Query]
+      operationId: listProjectSymbols
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 200
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - in: query
+          name: name
+          schema:
+            type: string
+        - in: query
+          name: kind
+          schema:
+            type: string
+        - in: query
+          name: search_mode
+          schema:
+            type: string
+            enum: [insensitive, sensitive, regex]
+            default: insensitive
+        - in: query
+          name: include_dir
+          schema:
+            type: string
+            description: Comma-separated glob patterns
+        - in: query
+          name: exclude_dir
+          schema:
+            type: string
+            description: Comma-separated glob patterns
+      responses:
+        "200":
+          description: Symbols for the active snapshot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SymbolListResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/symbols/{symbol_id}:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+      - $ref: "#/components/parameters/SymbolID"
+    get:
+      tags: [Query]
+      operationId: getProjectSymbol
+      responses:
+        "200":
+          description: Symbol detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Symbol"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/dependencies:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [Query]
+      operationId: getProjectDependenciesOverview
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 200
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      responses:
+        "200":
+          description: Dependency overview for the active snapshot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DependenciesOverviewResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/dependencies/graph:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [Query]
+      operationId: getProjectDependencyGraph
+      parameters:
+        - in: query
+          name: root
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: depth
+          schema:
+            type: integer
+            default: 2
+            minimum: 0
+            maximum: 5
+      responses:
+        "200":
+          description: Dependency graph rooted at a file path
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DependencyGraphResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/structure:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [Query]
+      operationId: getProjectStructure
+      responses:
+        "200":
+          description: File tree for the active snapshot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StructureResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/files/context:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [Query]
+      operationId: getProjectFileContext
+      parameters:
+        - in: query
+          name: file_path
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: include_ast
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: File content and parser metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileContextResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/files/dependencies:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [Query]
+      operationId: getProjectFileDependencies
+      parameters:
+        - in: query
+          name: file_path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Imports and reverse imports for a file
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileDependenciesResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/files/exports:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [Query]
+      operationId: getProjectFileExports
+      parameters:
+        - in: query
+          name: file_path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Export declarations for a file
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileExportsResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/files/references:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [Query]
+      operationId: getProjectFileReferences
+      parameters:
+        - in: query
+          name: file_path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Symbol references found in a file
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileReferencesResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/files/jsx-usages:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [Query]
+      operationId: getProjectFileJSXUsages
+      parameters:
+        - in: query
+          name: file_path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: JSX component usages found in a file
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileJSXUsagesResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/files/network-calls:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [Query]
+      operationId: getProjectFileNetworkCalls
+      parameters:
+        - in: query
+          name: file_path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Detected HTTP or fetch calls in a file
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileNetworkCallsResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/files/history:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [Commits]
+      operationId: getProjectFileHistory
+      parameters:
+        - in: query
+          name: file_path
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+            maximum: 50
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      responses:
+        "200":
+          description: Paginated commit history for a file
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FileHistoryResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/conventions:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [Query]
+      operationId: getProjectConventions
+      responses:
+        "200":
+          description: Project conventions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConventionsResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/settings/embedding/available:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [Settings]
+      operationId: listAvailableProjectEmbeddingConfigs
+      responses:
+        "200":
+          description: Selectable global embedding configs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmbeddingConfigListResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/settings/embedding:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [Settings]
+      operationId: getProjectEmbeddingSetting
+      responses:
+        "200":
+          description: Project embedding selection
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectEmbeddingSetting"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+    put:
+      tags: [Settings]
+      operationId: updateProjectEmbeddingSetting
+      description: User session required. Project admin role required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectEmbeddingSettingRequest"
+      responses:
+        "200":
+          description: Project embedding setting updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectEmbeddingSetting"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+    delete:
+      tags: [Settings]
+      operationId: clearProjectEmbeddingSetting
+      description: User session required. Project admin role required.
+      responses:
+        "200":
+          description: Project setting cleared
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/settings/embedding/resolved:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [Settings]
+      operationId: getResolvedProjectEmbeddingSetting
+      responses:
+        "200":
+          description: Effective embedding config for the project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResolvedEmbeddingSetting"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/settings/embedding/test:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    post:
+      tags: [Settings]
+      operationId: testProjectEmbeddingConnectivity
+      description: |
+        User session required. Project admin role required.
+        When the body is omitted or empty, the currently resolved project config is tested.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmbeddingConnectivityRequest"
+      responses:
+        "200":
+          description: Connectivity test result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConnectivityTestResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "413":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/settings/llm/available:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [Settings]
+      operationId: listAvailableProjectLLMConfigs
+      responses:
+        "200":
+          description: Selectable global LLM configs
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LLMConfigListResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/settings/llm:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [Settings]
+      operationId: getProjectLLMSetting
+      responses:
+        "200":
+          description: Project LLM selection
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectLLMSetting"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+    put:
+      tags: [Settings]
+      operationId: updateProjectLLMSetting
+      description: User session required. Project admin role required.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectLLMSettingRequest"
+      responses:
+        "200":
+          description: Project LLM setting updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectLLMSetting"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+    delete:
+      tags: [Settings]
+      operationId: clearProjectLLMSetting
+      description: User session required. Project admin role required.
+      responses:
+        "200":
+          description: Project setting cleared
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/settings/llm/resolved:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [Settings]
+      operationId: getResolvedProjectLLMSetting
+      responses:
+        "200":
+          description: Effective LLM config for the project
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResolvedLLMSetting"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/settings/llm/test:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    post:
+      tags: [Settings]
+      operationId: testProjectLLMConnectivity
+      description: |
+        User session required. Project admin role required.
+        When the body is omitted or empty, the currently resolved project config is tested.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LLMConnectivityRequest"
+      responses:
+        "200":
+          description: Connectivity test result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConnectivityTestResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "413":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/commits:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+    get:
+      tags: [Commits]
+      operationId: listProjectCommits
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: from_date
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: to_date
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Paginated commit history
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommitListResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/commits/{commit_hash}:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+      - $ref: "#/components/parameters/CommitHash"
+    get:
+      tags: [Commits]
+      operationId: getProjectCommit
+      responses:
+        "200":
+          description: Commit detail with parent and diff statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommitDetail"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+  /v1/projects/{project_id}/commits/{commit_hash}/diffs:
+    parameters:
+      - $ref: "#/components/parameters/ProjectID"
+      - $ref: "#/components/parameters/CommitHash"
+    get:
+      tags: [Commits]
+      operationId: listProjectCommitDiffs
+      parameters:
+        - in: query
+          name: include_patch
+          schema:
+            type: boolean
+            default: false
+        - in: query
+          name: diff_id
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 200
+            minimum: 1
+            maximum: 500
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      responses:
+        "200":
+          description: Paginated file diffs for a commit
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommitDiffsResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "403":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "422":
+          $ref: "#/components/responses/ErrorResponse"
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: token
+      description: Session token or API key via the `Authorization` header
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: mj_session
+      description: Session cookie set by `POST /v1/auth/login`
+
+  parameters:
+    ProjectID:
+      in: path
+      name: project_id
+      required: true
+      schema:
+        type: string
+        format: uuid
+    SymbolID:
+      in: path
+      name: symbol_id
+      required: true
+      schema:
+        type: string
+        format: uuid
+    SSHKeyID:
+      in: path
+      name: ssh_key_id
+      required: true
+      schema:
+        type: string
+        format: uuid
+    APIKeyID:
+      in: path
+      name: key_id
+      required: true
+      schema:
+        type: string
+        format: uuid
+    UserID:
+      in: path
+      name: user_id
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ConfigID:
+      in: path
+      name: config_id
+      required: true
+      schema:
+        type: string
+        format: uuid
+    CommitHash:
+      in: path
+      name: commit_hash
+      required: true
+      schema:
+        type: string
+    PlatformRole:
+      in: path
+      name: role
+      required: true
+      schema:
+        type: string
+        enum: [platform_admin]
+
+  responses:
+    ErrorResponse:
+      description: Structured error payload
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+        service:
+          type: string
+        version:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        checks:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              status:
+                type: string
+              latency_ms:
+                type: integer
+              error:
+                type: string
+
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+        code:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+
+    MessageResponse:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+
+    UserActionResponse:
+      type: object
+      required: [message, user_id]
+      properties:
+        message:
+          type: string
+        user_id:
+          type: string
+          format: uuid
+
+    PlatformRoleActionResponse:
+      type: object
+      required: [message, user_id, role]
+      properties:
+        message:
+          type: string
+        user_id:
+          type: string
+          format: uuid
+        role:
+          type: string
+          enum: [platform_admin]
+
+    ConfigActionResponse:
+      type: object
+      required: [message, config_id]
+      properties:
+        message:
+          type: string
+        config_id:
+          type: string
+          format: uuid
+
+    LoginRequest:
+      type: object
+      required: [username]
+      properties:
+        username:
+          type: string
+
+    User:
+      type: object
+      required: [id, username, email, is_active, created_at, updated_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        display_name:
+          type: string
+        avatar_url:
+          type: string
+          format: uri
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    BasicUserProfile:
+      type: object
+      required: [id, username, email]
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        display_name:
+          type: string
+        avatar_url:
+          type: string
+          format: uri
+
+    UserEnvelope:
+      type: object
+      required: [user]
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+
+    CurrentUserResponse:
+      type: object
+      required: [user, platform_roles]
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        platform_roles:
+          type: array
+          items:
+            type: string
+
+    UserLookupResponse:
+      type: object
+      required: [user]
+      properties:
+        user:
+          $ref: "#/components/schemas/BasicUserProfile"
+
+    LoginResponse:
+      type: object
+      required: [token, expires_at, user]
+      properties:
+        token:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+        user:
+          $ref: "#/components/schemas/User"
+
+    RegisterUserRequest:
+      type: object
+      required: [username, email]
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        display_name:
+          type: string
+
+    UpdateCurrentUserRequest:
+      type: object
+      description: At least one field must be provided.
+      properties:
+        display_name:
+          type: string
+        avatar_url:
+          type: string
+          format: uri
+          description: Pass an empty string to clear the avatar.
+        email:
+          type: string
+          format: email
+
+    UpdatePlatformUserRequest:
+      type: object
+      description: At least one field must be provided.
+      properties:
+        display_name:
+          type: string
+        avatar_url:
+          type: string
+          format: uri
+
+    Project:
+      type: object
+      required: [id, name, repo_url, default_branch, status]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        repo_url:
+          type: string
+        default_branch:
+          type: string
+        status:
+          type: string
+          enum: [active, paused]
+        created_by:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ProjectHealth:
+      allOf:
+        - $ref: "#/components/schemas/Project"
+        - type: object
+          properties:
+            role:
+              type: string
+              enum: [owner, admin, member]
+            index_git_commit:
+              type: string
+            index_branch:
+              type: string
+            index_activated_at:
+              type: string
+              format: date-time
+              nullable: true
+            active_job_id:
+              type: string
+              format: uuid
+              nullable: true
+            active_job_status:
+              type: string
+              nullable: true
+            failed_job_id:
+              type: string
+              format: uuid
+              nullable: true
+            failed_job_finished_at:
+              type: string
+              format: date-time
+              nullable: true
+            failed_job_type:
+              type: string
+              nullable: true
+
+    ProjectListResponse:
+      type: object
+      required: [data, total, limit, offset]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Project"
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    UserProjectListResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProjectHealth"
+
+    CreateProjectRequest:
+      type: object
+      required: [name, repo_url, ssh_key_id]
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        repo_url:
+          type: string
+        default_branch:
+          type: string
+        status:
+          type: string
+          enum: [active, paused]
+        ssh_key_id:
+          type: string
+          format: uuid
+
+    CreateProjectResponse:
+      type: object
+      required: [id, name, repo_url, default_branch, status, ssh_key]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        repo_url:
+          type: string
+        default_branch:
+          type: string
+        status:
+          type: string
+          enum: [active, paused]
+        created_by:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        ssh_key:
+          $ref: "#/components/schemas/SSHKeySummary"
+
+    UpdateProjectRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        repo_url:
+          type: string
+        default_branch:
+          type: string
+        status:
+          type: string
+          enum: [active, paused]
+
+    ProjectMemberWithUser:
+      type: object
+      required: [id, project_id, user_id, username, role, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        display_name:
+          type: string
+        avatar_url:
+          type: string
+          format: uri
+        role:
+          type: string
+          enum: [owner, admin, member]
+        created_at:
+          type: string
+          format: date-time
+
+    ProjectMemberListResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProjectMemberWithUser"
+
+    AddMemberRequest:
+      type: object
+      required: [user_id]
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        role:
+          type: string
+          enum: [owner, admin, member]
+          default: member
+
+    UpdateMemberRoleRequest:
+      type: object
+      required: [role]
+      properties:
+        role:
+          type: string
+          enum: [owner, admin, member]
+
+    SSHKeySummary:
+      type: object
+      required: [id, name, fingerprint, public_key, key_type, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        fingerprint:
+          type: string
+        public_key:
+          type: string
+        key_type:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    SSHKey:
+      allOf:
+        - $ref: "#/components/schemas/SSHKeySummary"
+        - type: object
+          properties:
+            is_active:
+              type: boolean
+            created_by:
+              type: string
+              format: uuid
+            rotated_at:
+              type: string
+              format: date-time
+              nullable: true
+
+    SSHKeyListResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/SSHKey"
+
+    SSHKeyProjectListResponse:
+      type: object
+      required: [items, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Project"
+        total:
+          type: integer
+
+    CreateSSHKeyRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        private_key:
+          type: string
+          description: PEM-encoded private key to import. Omit to generate a new key pair.
+
+    AssignProjectSSHKeyRequest:
+      type: object
+      description: Provide either `ssh_key_id` or `generate=true` with `name`.
+      properties:
+        ssh_key_id:
+          type: string
+          format: uuid
+        generate:
+          type: boolean
+        name:
+          type: string
+
+    APIKeyInfo:
+      type: object
+      required: [id, key_type, key_prefix, name, role, is_active, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        key_type:
+          type: string
+          enum: [personal, project]
+        key_prefix:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+          enum: [read, write]
+        is_active:
+          type: boolean
+        project_id:
+          type: string
+          format: uuid
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_used_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_by:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+
+    APIKeyListResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/APIKeyInfo"
+
+    CreateAPIKeyRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        role:
+          type: string
+          enum: [read, write]
+          default: read
+        expires_at:
+          type: string
+          format: date-time
+
+    CreateAPIKeyResponse:
+      type: object
+      required: [id, key_type, key_prefix, plaintext_key, name, role, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        key_type:
+          type: string
+          enum: [personal, project]
+        key_prefix:
+          type: string
+        plaintext_key:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+          enum: [read, write]
+        project_id:
+          type: string
+          format: uuid
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    ProviderCatalogResponse:
+      type: object
+      required: [embedding, llm]
+      properties:
+        embedding:
+          type: array
+          items:
+            type: string
+        llm:
+          type: array
+          items:
+            type: string
+
+    EmbeddingConfig:
+      type: object
+      required:
+        [
+          id,
+          name,
+          provider,
+          endpoint_url,
+          model,
+          dimensions,
+          max_tokens,
+          settings,
+          has_credentials,
+          is_active,
+          is_default,
+          is_available_to_projects,
+          created_at,
+          updated_at,
+        ]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        provider:
+          type: string
+        endpoint_url:
+          type: string
+        model:
+          type: string
+        dimensions:
+          type: integer
+          minimum: 1
+          maximum: 65536
+        max_tokens:
+          type: integer
+          minimum: 1
+          maximum: 131072
+        settings:
+          type: object
+          additionalProperties: true
+        has_credentials:
+          type: boolean
+        is_active:
+          type: boolean
+        is_default:
+          type: boolean
+        is_available_to_projects:
+          type: boolean
+        project_id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    EmbeddingConfigListResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/EmbeddingConfig"
+
+    EmbeddingConfigEnvelope:
+      type: object
+      required: [config]
+      properties:
+        config:
+          $ref: "#/components/schemas/EmbeddingConfig"
+
+    EmbeddingPromotionResponse:
+      type: object
+      required: [message, config]
+      properties:
+        message:
+          type: string
+        config:
+          $ref: "#/components/schemas/EmbeddingConfig"
+
+    GlobalEmbeddingConfigRequest:
+      type: object
+      required: [name, provider, endpoint_url, model, dimensions, max_tokens, settings]
+      properties:
+        name:
+          type: string
+        provider:
+          type: string
+        endpoint_url:
+          type: string
+          format: uri
+        model:
+          type: string
+        dimensions:
+          type: integer
+          minimum: 1
+          maximum: 65536
+        max_tokens:
+          type: integer
+          minimum: 1
+          maximum: 131072
+        settings:
+          type: object
+          additionalProperties: true
+        credentials:
+          type: object
+          additionalProperties: true
+          nullable: true
+        is_available_to_projects:
+          type: boolean
+
+    PatchGlobalEmbeddingConfigRequest:
+      type: object
+      description: At least one field must be provided.
+      properties:
+        name:
+          type: string
+        provider:
+          type: string
+        endpoint_url:
+          type: string
+          format: uri
+        model:
+          type: string
+        dimensions:
+          type: integer
+          minimum: 1
+          maximum: 65536
+        max_tokens:
+          type: integer
+          minimum: 1
+          maximum: 131072
+        settings:
+          type: object
+          additionalProperties: true
+        credentials:
+          type: object
+          additionalProperties: true
+          nullable: true
+        is_available_to_projects:
+          type: boolean
+
+    EmbeddingConnectivityRequest:
+      type: object
+      required: [provider, endpoint_url, model]
+      properties:
+        provider:
+          type: string
+        endpoint_url:
+          type: string
+          format: uri
+        model:
+          type: string
+        dimensions:
+          type: integer
+          minimum: 1
+          maximum: 65536
+
+    UseGlobalEmbeddingConfigRequest:
+      type: object
+      required: [mode, global_config_id]
+      properties:
+        mode:
+          type: string
+          enum: [global]
+        global_config_id:
+          type: string
+          format: uuid
+
+    CustomEmbeddingConfigRequest:
+      type: object
+      required: [mode, name, provider, endpoint_url, model, dimensions, max_tokens, settings]
+      properties:
+        mode:
+          type: string
+          enum: [custom]
+        name:
+          type: string
+        provider:
+          type: string
+        endpoint_url:
+          type: string
+          format: uri
+        model:
+          type: string
+        dimensions:
+          type: integer
+          minimum: 1
+          maximum: 65536
+        max_tokens:
+          type: integer
+          minimum: 1
+          maximum: 131072
+        settings:
+          type: object
+          additionalProperties: true
+        credentials:
+          type: object
+          additionalProperties: true
+          nullable: true
+
+    ProjectEmbeddingSettingRequest:
+      oneOf:
+        - $ref: "#/components/schemas/UseGlobalEmbeddingConfigRequest"
+        - $ref: "#/components/schemas/CustomEmbeddingConfigRequest"
+
+    ProjectEmbeddingSetting:
+      type: object
+      required: [mode, config]
+      properties:
+        mode:
+          type: string
+          enum: [global, custom]
+        global_config_id:
+          type: string
+          format: uuid
+        config:
+          $ref: "#/components/schemas/EmbeddingConfig"
+
+    ResolvedEmbeddingSetting:
+      type: object
+      required: [source, config]
+      properties:
+        source:
+          type: string
+          enum: [project, global]
+        config:
+          $ref: "#/components/schemas/EmbeddingConfig"
+
+    LLMConfig:
+      type: object
+      required:
+        [
+          id,
+          name,
+          provider,
+          endpoint_url,
+          settings,
+          has_credentials,
+          is_active,
+          is_default,
+          is_available_to_projects,
+          created_at,
+          updated_at,
+        ]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        provider:
+          type: string
+        endpoint_url:
+          type: string
+        model:
+          type: string
+        settings:
+          type: object
+          additionalProperties: true
+        has_credentials:
+          type: boolean
+        is_active:
+          type: boolean
+        is_default:
+          type: boolean
+        is_available_to_projects:
+          type: boolean
+        project_id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    LLMConfigListResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/LLMConfig"
+
+    LLMConfigEnvelope:
+      type: object
+      required: [config]
+      properties:
+        config:
+          $ref: "#/components/schemas/LLMConfig"
+
+    LLMPromotionResponse:
+      type: object
+      required: [message, config]
+      properties:
+        message:
+          type: string
+        config:
+          $ref: "#/components/schemas/LLMConfig"
+
+    GlobalLLMConfigRequest:
+      type: object
+      required: [name, provider, endpoint_url, settings]
+      properties:
+        name:
+          type: string
+        provider:
+          type: string
+        endpoint_url:
+          type: string
+          format: uri
+        model:
+          type: string
+        settings:
+          type: object
+          additionalProperties: true
+        credentials:
+          type: object
+          additionalProperties: true
+          nullable: true
+        is_available_to_projects:
+          type: boolean
+
+    PatchGlobalLLMConfigRequest:
+      type: object
+      description: At least one field must be provided.
+      properties:
+        name:
+          type: string
+        provider:
+          type: string
+        endpoint_url:
+          type: string
+          format: uri
+        model:
+          type: string
+        settings:
+          type: object
+          additionalProperties: true
+        credentials:
+          type: object
+          additionalProperties: true
+          nullable: true
+        is_available_to_projects:
+          type: boolean
+
+    LLMConnectivityRequest:
+      type: object
+      required: [provider, endpoint_url]
+      properties:
+        provider:
+          type: string
+        endpoint_url:
+          type: string
+          format: uri
+        model:
+          type: string
+
+    UseGlobalLLMConfigRequest:
+      type: object
+      required: [mode, global_config_id]
+      properties:
+        mode:
+          type: string
+          enum: [global]
+        global_config_id:
+          type: string
+          format: uuid
+
+    CustomLLMConfigRequest:
+      type: object
+      required: [mode, name, provider, endpoint_url, settings]
+      properties:
+        mode:
+          type: string
+          enum: [custom]
+        name:
+          type: string
+        provider:
+          type: string
+        endpoint_url:
+          type: string
+          format: uri
+        model:
+          type: string
+        settings:
+          type: object
+          additionalProperties: true
+        credentials:
+          type: object
+          additionalProperties: true
+          nullable: true
+
+    ProjectLLMSettingRequest:
+      oneOf:
+        - $ref: "#/components/schemas/UseGlobalLLMConfigRequest"
+        - $ref: "#/components/schemas/CustomLLMConfigRequest"
+
+    ProjectLLMSetting:
+      type: object
+      required: [mode, config]
+      properties:
+        mode:
+          type: string
+          enum: [global, custom]
+        global_config_id:
+          type: string
+          format: uuid
+        config:
+          $ref: "#/components/schemas/LLMConfig"
+
+    ResolvedLLMSetting:
+      type: object
+      required: [source, config]
+      properties:
+        source:
+          type: string
+          enum: [project, global]
+        config:
+          $ref: "#/components/schemas/LLMConfig"
+
+    ConnectivityTestResponse:
+      type: object
+      required: [ok, provider, message]
+      properties:
+        ok:
+          type: boolean
+        provider:
+          type: string
+        message:
+          type: string
+
+    IndexRequest:
+      type: object
+      properties:
+        job_type:
+          type: string
+          enum: [full, incremental]
+          default: full
+
+    IndexJob:
+      type: object
+      required:
+        [
+          id,
+          project_id,
+          job_type,
+          status,
+          files_processed,
+          chunks_upserted,
+          vectors_deleted,
+          error_details,
+        ]
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        index_snapshot_id:
+          type: string
+          format: uuid
+          nullable: true
+        embedding_provider_config_id:
+          type: string
+          format: uuid
+          nullable: true
+        llm_provider_config_id:
+          type: string
+          format: uuid
+          nullable: true
+        job_type:
+          type: string
+          enum: [full, incremental]
+        status:
+          type: string
+          enum: [queued, running, completed, failed]
+        files_processed:
+          type: integer
+        chunks_upserted:
+          type: integer
+        vectors_deleted:
+          type: integer
+        error_details:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        finished_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    IndexJobListResponse:
+      type: object
+      required: [items, total, limit, offset]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/IndexJob"
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    CodeSearchRequest:
+      type: object
+      required: [query]
+      properties:
+        query:
+          type: string
+          maxLength: 1000
+        search_mode:
+          type: string
+          enum: [insensitive, sensitive, regex]
+          default: insensitive
+        language:
+          type: string
+        file_pattern:
+          type: string
+          description: Comma-separated glob patterns
+        include_dir:
+          type: string
+          description: Comma-separated glob patterns
+        exclude_dir:
+          type: string
+          description: Comma-separated glob patterns
+        limit:
+          type: integer
+          default: 20
+          minimum: 1
+          maximum: 100
+        offset:
+          type: integer
+          default: 0
+          minimum: 0
+
+    CodeSearchMatch:
+      type: object
+      required: [chunk_id, file_path, start_line, end_line, content, match_count]
+      properties:
+        chunk_id:
+          type: string
+          format: uuid
+        file_path:
+          type: string
+        language:
+          type: string
+        start_line:
+          type: integer
+        end_line:
+          type: integer
+        content:
+          type: string
+        match_count:
+          type: integer
+
+    CodeSearchResponse:
+      type: object
+      required: [items, total, limit, offset]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CodeSearchMatch"
+        total:
+          type: integer
+        snapshot_id:
+          type: string
+          format: uuid
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    Symbol:
+      type: object
+      required: [id, name, kind, file_path, modifiers, parameter_types]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        qualified_name:
+          type: string
+        kind:
+          type: string
+        signature:
+          type: string
+        start_line:
+          type: integer
+        end_line:
+          type: integer
+        doc_text:
+          type: string
+        file_path:
+          type: string
+        language:
+          type: string
+        flags:
+          type: object
+          additionalProperties: true
+        modifiers:
+          type: array
+          items:
+            type: string
+        return_type:
+          type: string
+        parameter_types:
+          type: array
+          items:
+            type: string
+
+    SymbolListResponse:
+      type: object
+      required: [items, total, limit, offset]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Symbol"
+        total:
+          type: integer
+        snapshot_id:
+          type: string
+          format: uuid
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    ExternalPackage:
+      type: object
+      required: [package_name, import_count, file_count]
+      properties:
+        package_name:
+          type: string
+        package_version:
+          type: string
+        import_count:
+          type: integer
+        file_count:
+          type: integer
+
+    FileDependencyCount:
+      type: object
+      required: [file_path, imports_count, imported_by_count]
+      properties:
+        file_path:
+          type: string
+        imports_count:
+          type: integer
+        imported_by_count:
+          type: integer
+
+    DependenciesOverviewResponse:
+      type: object
+      required: [external_packages, file_dependency_counts, total_files, limit, offset]
+      properties:
+        external_packages:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExternalPackage"
+        file_dependency_counts:
+          type: array
+          items:
+            $ref: "#/components/schemas/FileDependencyCount"
+        total_files:
+          type: integer
+        snapshot_id:
+          type: string
+          format: uuid
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    DependencyEdge:
+      type: object
+      required: [id, source_file_path, import_name, import_type]
+      properties:
+        id:
+          type: string
+          format: uuid
+        source_file_path:
+          type: string
+        target_file_path:
+          type: string
+        import_name:
+          type: string
+        import_type:
+          type: string
+        package_name:
+          type: string
+        package_version:
+          type: string
+
+    FileDependenciesResponse:
+      type: object
+      required: [file_path, imports, imported_by]
+      properties:
+        file_path:
+          type: string
+        imports:
+          type: array
+          items:
+            $ref: "#/components/schemas/DependencyEdge"
+        imported_by:
+          type: array
+          items:
+            $ref: "#/components/schemas/DependencyEdge"
+        snapshot_id:
+          type: string
+          format: uuid
+
+    GraphNode:
+      type: object
+      required: [file_path, is_external, depth]
+      properties:
+        file_path:
+          type: string
+        language:
+          type: string
+        is_external:
+          type: boolean
+        depth:
+          type: integer
+
+    GraphEdge:
+      type: object
+      required: [source, target, import_name, import_type]
+      properties:
+        source:
+          type: string
+        target:
+          type: string
+        import_name:
+          type: string
+        import_type:
+          type: string
+        package_name:
+          type: string
+
+    DependencyGraphResponse:
+      type: object
+      required: [nodes, edges, root, depth, truncated]
+      properties:
+        nodes:
+          type: array
+          items:
+            $ref: "#/components/schemas/GraphNode"
+        edges:
+          type: array
+          items:
+            $ref: "#/components/schemas/GraphEdge"
+        root:
+          type: string
+        depth:
+          type: integer
+        truncated:
+          type: boolean
+        snapshot_id:
+          type: string
+          format: uuid
+
+    FileNode:
+      type: object
+      required: [path, name, node_type]
+      properties:
+        path:
+          type: string
+        name:
+          type: string
+        node_type:
+          type: string
+          enum: [file, directory]
+        language:
+          type: string
+        size_bytes:
+          type: integer
+        children:
+          type: array
+          items:
+            $ref: "#/components/schemas/FileNode"
+
+    StructureResponse:
+      type: object
+      required: [root]
+      properties:
+        root:
+          $ref: "#/components/schemas/FileNode"
+        snapshot_id:
+          type: string
+          format: uuid
+        git_commit:
+          type: string
+        branch:
+          type: string
+        file_count:
+          type: integer
+
+    FileContextResponse:
+      type: object
+      required:
+        [file_path, language, size_bytes, line_count, content_hash, content, snapshot_id]
+      properties:
+        file_path:
+          type: string
+        language:
+          type: string
+        size_bytes:
+          type: integer
+        line_count:
+          type: integer
+        content_hash:
+          type: string
+        content:
+          type: string
+        tree_sitter_ast:
+          description: Arbitrary JSON AST emitted by the parser.
+        file_facts:
+          description: Arbitrary JSON facts extracted for the file.
+        issues:
+          description: Arbitrary JSON issue list for the file.
+        parser_meta:
+          description: Arbitrary JSON parser metadata.
+        extractor_statuses:
+          description: Arbitrary JSON extractor status data.
+        snapshot_id:
+          type: string
+          format: uuid
+        last_indexed_at:
+          type: string
+          format: date-time
+
+    FileHistoryEntry:
+      type: object
+      required:
+        [
+          diff_id,
+          commit_hash,
+          short_hash,
+          author_name,
+          committer_date,
+          message_subject,
+          change_type,
+          additions,
+          deletions,
+        ]
+      properties:
+        diff_id:
+          type: string
+          format: uuid
+        commit_hash:
+          type: string
+        short_hash:
+          type: string
+        author_name:
+          type: string
+        committer_date:
+          type: string
+          format: date-time
+        message_subject:
+          type: string
+        change_type:
+          type: string
+        additions:
+          type: integer
+        deletions:
+          type: integer
+
+    FileHistoryResponse:
+      type: object
+      required: [items, total, limit, offset]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/FileHistoryEntry"
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    ConventionsResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+
+    FileExport:
+      type: object
+      required: [id, export_kind, exported_name, line, column]
+      properties:
+        id:
+          type: string
+          format: uuid
+        export_kind:
+          type: string
+        exported_name:
+          type: string
+        local_name:
+          type: string
+        source_module:
+          type: string
+        line:
+          type: integer
+        column:
+          type: integer
+
+    FileExportsResponse:
+      type: object
+      required: [file_path, items, total]
+      properties:
+        file_path:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/FileExport"
+        total:
+          type: integer
+        snapshot_id:
+          type: string
+          format: uuid
+
+    SymbolReference:
+      type: object
+      required:
+        [
+          id,
+          reference_kind,
+          target_name,
+          start_line,
+          start_column,
+          end_line,
+          end_column,
+        ]
+      properties:
+        id:
+          type: string
+          format: uuid
+        reference_kind:
+          type: string
+        target_name:
+          type: string
+        qualified_target_hint:
+          type: string
+        raw_text:
+          type: string
+        start_line:
+          type: integer
+        start_column:
+          type: integer
+        end_line:
+          type: integer
+        end_column:
+          type: integer
+        resolution_scope:
+          type: string
+        confidence:
+          type: string
+
+    FileReferencesResponse:
+      type: object
+      required: [file_path, items, total]
+      properties:
+        file_path:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/SymbolReference"
+        total:
+          type: integer
+        snapshot_id:
+          type: string
+          format: uuid
+
+    JSXUsage:
+      type: object
+      required: [id, component_name, is_intrinsic, is_fragment, line, column]
+      properties:
+        id:
+          type: string
+          format: uuid
+        component_name:
+          type: string
+        is_intrinsic:
+          type: boolean
+        is_fragment:
+          type: boolean
+        line:
+          type: integer
+        column:
+          type: integer
+        confidence:
+          type: string
+
+    FileJSXUsagesResponse:
+      type: object
+      required: [file_path, items, total]
+      properties:
+        file_path:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/JSXUsage"
+        total:
+          type: integer
+        snapshot_id:
+          type: string
+          format: uuid
+
+    NetworkCall:
+      type: object
+      required:
+        [
+          id,
+          client_kind,
+          method,
+          is_relative,
+          start_line,
+          start_column,
+        ]
+      properties:
+        id:
+          type: string
+          format: uuid
+        client_kind:
+          type: string
+        method:
+          type: string
+        url_literal:
+          type: string
+        url_template:
+          type: string
+        is_relative:
+          type: boolean
+        start_line:
+          type: integer
+        start_column:
+          type: integer
+        confidence:
+          type: string
+
+    FileNetworkCallsResponse:
+      type: object
+      required: [file_path, items, total]
+      properties:
+        file_path:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/NetworkCall"
+        total:
+          type: integer
+        snapshot_id:
+          type: string
+          format: uuid
+
+    DashboardSummary:
+      type: object
+      properties:
+        projects_total:
+          type: integer
+        jobs_active:
+          type: integer
+        jobs_failed_24h:
+          type: integer
+        query_count_24h:
+          type: integer
+        p95_latency_ms_24h:
+          type: number
+
+    AdminUserSummary:
+      allOf:
+        - $ref: "#/components/schemas/User"
+        - type: object
+          required: [project_count, platform_roles]
+          properties:
+            project_count:
+              type: integer
+            platform_roles:
+              type: array
+              items:
+                type: string
+
+    AdminUserListResponse:
+      type: object
+      required: [items, total, limit, offset]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminUserSummary"
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    UserMembershipSummary:
+      type: object
+      required: [project_id, project_name, role, joined_at]
+      properties:
+        project_id:
+          type: string
+          format: uuid
+        project_name:
+          type: string
+        role:
+          type: string
+          enum: [owner, admin, member]
+        joined_at:
+          type: string
+          format: date-time
+
+    AdminUserDetailResponse:
+      type: object
+      required: [user, platform_roles, memberships]
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        platform_roles:
+          type: array
+          items:
+            type: string
+        memberships:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserMembershipSummary"
+
+    PlatformRoleAssignment:
+      type: object
+      required: [id, user_id, username, role, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        display_name:
+          type: string
+        avatar_url:
+          type: string
+          format: uri
+        role:
+          type: string
+          enum: [platform_admin]
+        granted_by:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+
+    PlatformRoleListResponse:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlatformRoleAssignment"
+
+    GrantPlatformRoleRequest:
+      type: object
+      required: [user_id, role]
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        role:
+          type: string
+          enum: [platform_admin]
+
+    PlatformRoleGrantResponse:
+      type: object
+      required: [id, user_id, role, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        role:
+          type: string
+          enum: [platform_admin]
+        granted_by:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+
+    WorkerStatus:
+      type: object
+      required:
+        [worker_id, status, started_at, last_heartbeat_at, supported_workflows]
+      properties:
+        worker_id:
+          type: string
+        status:
+          type: string
+        started_at:
+          type: string
+          format: date-time
+        last_heartbeat_at:
+          type: string
+          format: date-time
+        supported_workflows:
+          type: array
+          items:
+            type: string
+        hostname:
+          type: string
+        version:
+          type: string
+        current_job_id:
+          type: string
+          format: uuid
+        current_project_id:
+          type: string
+          format: uuid
+        drain_reason:
+          type: string
+
+    WorkerListResponse:
+      type: object
+      required: [items, count]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkerStatus"
+        count:
+          type: integer
+
+    CommitSummary:
+      type: object
+      required:
+        [
+          id,
+          commit_hash,
+          short_hash,
+          author_name,
+          author_date,
+          committer_name,
+          committer_date,
+          message,
+          message_subject,
+        ]
+      properties:
+        id:
+          type: string
+          format: uuid
+        commit_hash:
+          type: string
+        short_hash:
+          type: string
+        author_name:
+          type: string
+        author_email:
+          type: string
+          format: email
+        author_date:
+          type: string
+          format: date-time
+        committer_name:
+          type: string
+        committer_email:
+          type: string
+          format: email
+        committer_date:
+          type: string
+          format: date-time
+        message:
+          type: string
+        message_subject:
+          type: string
+
+    CommitListResponse:
+      type: object
+      required: [items, total, limit, offset]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CommitSummary"
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    CommitParent:
+      type: object
+      required: [parent_commit_id, parent_commit_hash, parent_short_hash, ordinal]
+      properties:
+        parent_commit_id:
+          type: string
+          format: uuid
+        parent_commit_hash:
+          type: string
+        parent_short_hash:
+          type: string
+        ordinal:
+          type: integer
+
+    CommitDiffStats:
+      type: object
+      required: [files_changed, total_additions, total_deletions]
+      properties:
+        files_changed:
+          type: integer
+        total_additions:
+          type: integer
+        total_deletions:
+          type: integer
+
+    CommitDetail:
+      allOf:
+        - $ref: "#/components/schemas/CommitSummary"
+        - type: object
+          required: [parents, diff_stats]
+          properties:
+            parents:
+              type: array
+              items:
+                $ref: "#/components/schemas/CommitParent"
+            diff_stats:
+              $ref: "#/components/schemas/CommitDiffStats"
+
+    FileDiff:
+      type: object
+      required: [id, change_type, additions, deletions]
+      properties:
+        id:
+          type: string
+          format: uuid
+        old_file_path:
+          type: string
+        new_file_path:
+          type: string
+        change_type:
+          type: string
+        patch:
+          type: string
+        additions:
+          type: integer
+        deletions:
+          type: integer
+        parent_commit_id:
+          type: string
+          format: uuid
+
+    CommitDiffsResponse:
+      type: object
+      required: [commit_hash, diffs, total, limit, offset]
+      properties:
+        commit_hash:
+          type: string
+        diffs:
+          type: array
+          items:
+            $ref: "#/components/schemas/FileDiff"
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer

@@ -1,0 +1,170 @@
+# Backend-only stack for local frontend development.
+# Usage: docker compose -f docker-compose.backend.yaml up -d --build
+#
+# Starts infra (postgres, qdrant, redis) + backend services
+# (backend-api, backend-worker, mcp-server).
+# The parser engine runs inside the backend-worker container.
+# No backoffice container — run the frontend locally with
+# API_BASE_URL=http://localhost:8080
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: myjungle-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-codeintel}
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-app}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-app} -d ${POSTGRES_DB:-codeintel}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - internal
+
+  qdrant:
+    image: qdrant/qdrant:v1.13.2
+    container_name: myjungle-qdrant
+    volumes:
+      - qdrant_data:/qdrant/storage
+    ports:
+      - "6333:6333"
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/127.0.0.1/6333'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - internal
+
+  redis:
+    # Pinned — bumping major versions requires reviewing ACL syntax changes
+    # and Search module defaults (BM25 vs TF-IDF). Back up redis_data first.
+    image: redis:8.6.1-alpine
+    container_name: myjungle-redis
+    command: ["redis-server", "--save", "60", "1", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - internal
+
+  backend-api:
+    image: ${BACKEND_API_IMAGE:-myjungle/backend-api:local}
+    build:
+      context: .
+      dockerfile: backend-api/Dockerfile
+    container_name: myjungle-backend-api
+    command: ["--migrate"]
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_FORMAT: ${LOG_FORMAT:-json}
+      SERVER_PORT: 8080
+      POSTGRES_DSN: postgres://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-app}@postgres:5432/${POSTGRES_DB:-codeintel}?sslmode=disable
+      QDRANT_URL: http://qdrant:6333
+      REDIS_URL: redis://redis:6379/0
+      OLLAMA_URL: ${OLLAMA_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-jina/jina-embeddings-v2-base-en}
+      REPO_CACHE_DIR: /var/lib/myjungle/repos
+      SSH_KEY_ENCRYPTION_SECRET: ${SSH_KEY_ENCRYPTION_SECRET:-replace-this-secret}
+      PROVIDER_ENCRYPTION_SECRET: ${PROVIDER_ENCRYPTION_SECRET:-replace-this-secret}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - repo_cache:/var/lib/myjungle/repos
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/health/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+    restart: unless-stopped
+    networks:
+      - internal
+
+  backend-worker:
+    image: ${BACKEND_WORKER_IMAGE:-myjungle/backend-worker:local}
+    build:
+      context: .
+      dockerfile: backend-worker/Dockerfile
+    container_name: myjungle-backend-worker
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_FORMAT: ${LOG_FORMAT:-json}
+      POSTGRES_DSN: postgres://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-app}@postgres:5432/${POSTGRES_DB:-codeintel}?sslmode=disable
+      QDRANT_URL: http://qdrant:6333
+      REDIS_URL: redis://redis:6379/0
+      PARSER_POOL_SIZE: ${PARSER_POOL_SIZE:-4}
+      PARSER_TIMEOUT_PER_FILE: ${PARSER_TIMEOUT_PER_FILE:-30s}
+      PARSER_MAX_FILE_SIZE: ${PARSER_MAX_FILE_SIZE:-10485760}
+      OLLAMA_URL: ${OLLAMA_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-jina/jina-embeddings-v2-base-en}
+      REPO_CACHE_DIR: /var/lib/myjungle/repos
+      SSH_KEY_ENCRYPTION_SECRET: ${SSH_KEY_ENCRYPTION_SECRET:-replace-this-secret}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - repo_cache:/var/lib/myjungle/repos
+    restart: unless-stopped
+    networks:
+      - internal
+
+  mcp-server:
+    image: ${MCP_SERVER_IMAGE:-myjungle/mcp-server:local}
+    build:
+      context: ./mcpserver
+      dockerfile: Dockerfile
+    container_name: myjungle-mcp-server
+    environment:
+      MCP_TRANSPORT: sse
+      MCP_HTTP_PORT: 4444
+      MCP_REQUEST_TIMEOUT_MS: 10000
+      BACKEND_BASE_URL: http://backend-api:8080
+    depends_on:
+      backend-api:
+        condition: service_healthy
+    ports:
+      - "4444:4444"
+    restart: unless-stopped
+    networks:
+      - internal
+
+volumes:
+  postgres_data:
+  qdrant_data:
+  redis_data:
+  repo_cache:
+
+networks:
+  internal:
+    name: myjungle-internal
+    driver: bridge

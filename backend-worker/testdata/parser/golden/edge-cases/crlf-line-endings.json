@@ -1,0 +1,258 @@
+{
+  "FilePath": "crlf-line-endings.ts",
+  "Language": "typescript",
+  "FileHash": "f2779eb8a719cb2e4eaa835d0a3de58c8e83b5b57e6cd691b22bbc1087c7eca4",
+  "SizeBytes": 384,
+  "LineCount": 18,
+  "Symbols": [
+    {
+      "SymbolID": "sym_ded4b747720aa799",
+      "Name": "CrlfTest",
+      "QualifiedName": "CrlfTest",
+      "Kind": "interface",
+      "Signature": "interface CrlfTest",
+      "StartLine": 4,
+      "EndLine": 7,
+      "DocText": "",
+      "SymbolHash": "3ab899047b115c43780f73a756d09213c9b9ef783774d1e2388a3f7a260efc16",
+      "ParentSymbolID": "",
+      "Flags": {
+        "IsExported": true,
+        "IsDefaultExport": false,
+        "IsAsync": false,
+        "IsGenerator": false,
+        "IsStatic": false,
+        "IsAbstract": false,
+        "IsReadonly": false,
+        "IsOptional": false,
+        "IsArrowFunction": false,
+        "IsReactComponentLike": false,
+        "IsHookLike": false
+      },
+      "Modifiers": null,
+      "ReturnType": "",
+      "ParameterTypes": null
+    },
+    {
+      "SymbolID": "sym_4b9b55f3a299f136",
+      "Name": "greet",
+      "QualifiedName": "greet",
+      "Kind": "function",
+      "Signature": "function greet(test: CrlfTest): string",
+      "StartLine": 9,
+      "EndLine": 12,
+      "DocText": "",
+      "SymbolHash": "1719f296d574d6554a6f35e7b342e5a794e8367bc103bc65a0569cc917e23d12",
+      "ParentSymbolID": "",
+      "Flags": {
+        "IsExported": true,
+        "IsDefaultExport": false,
+        "IsAsync": false,
+        "IsGenerator": false,
+        "IsStatic": false,
+        "IsAbstract": false,
+        "IsReadonly": false,
+        "IsOptional": false,
+        "IsArrowFunction": false,
+        "IsReactComponentLike": false,
+        "IsHookLike": false
+      },
+      "Modifiers": null,
+      "ReturnType": "",
+      "ParameterTypes": null
+    },
+    {
+      "SymbolID": "sym_c60fc64c2cdae143",
+      "Name": "items",
+      "QualifiedName": "items",
+      "Kind": "variable",
+      "Signature": "const items: CrlfTest[] = [",
+      "StartLine": 14,
+      "EndLine": 18,
+      "DocText": "",
+      "SymbolHash": "6386406d610d8a95855d9bf817b224c7696e2ba5fb0d2619be56e557dbdd3512",
+      "ParentSymbolID": "",
+      "Flags": {
+        "IsExported": false,
+        "IsDefaultExport": false,
+        "IsAsync": false,
+        "IsGenerator": false,
+        "IsStatic": false,
+        "IsAbstract": false,
+        "IsReadonly": false,
+        "IsOptional": false,
+        "IsArrowFunction": false,
+        "IsReactComponentLike": false,
+        "IsHookLike": false
+      },
+      "Modifiers": null,
+      "ReturnType": "",
+      "ParameterTypes": null
+    }
+  ],
+  "Imports": [],
+  "Chunks": [
+    {
+      "ChunkID": "crlf-line-endings.ts:module_context:1-3",
+      "SymbolID": "",
+      "ChunkType": "module_context",
+      "ChunkHash": "31497d84d0c2e8088d6d0650fcbb61d238a604cd40521b9ee6df1fe30a9526ba",
+      "Content": "// File with Windows-style CRLF line endings.\n// Every line in this file uses \\r\\n.\n",
+      "ContextBefore": "",
+      "ContextAfter": "",
+      "StartLine": 1,
+      "EndLine": 3,
+      "EstimatedTokens": 21,
+      "OwnerQualifiedName": "",
+      "OwnerKind": "",
+      "IsExportedContext": false,
+      "SemanticRole": "implementation"
+    },
+    {
+      "ChunkID": "crlf-line-endings.ts:class:4-7",
+      "SymbolID": "sym_ded4b747720aa799",
+      "ChunkType": "class",
+      "ChunkHash": "0b1a97e2389fb75bac2625cd3c1f1df8add28e5a372c17249a0ab7dca400bfee",
+      "Content": "export interface CrlfTest {\n  name: string;\n  count: number;\n}",
+      "ContextBefore": "File: crlf-line-endings.ts \u003e interface CrlfTest",
+      "ContextAfter": "",
+      "StartLine": 4,
+      "EndLine": 7,
+      "EstimatedTokens": 16,
+      "OwnerQualifiedName": "CrlfTest",
+      "OwnerKind": "interface",
+      "IsExportedContext": true,
+      "SemanticRole": "api_surface"
+    },
+    {
+      "ChunkID": "crlf-line-endings.ts:function:9-12",
+      "SymbolID": "sym_4b9b55f3a299f136",
+      "ChunkType": "function",
+      "ChunkHash": "e329aea9fe472e21f8d0d66fe3cefcfe27e2d504940ce0fe5ca7d3faffcebbbd",
+      "Content": "export function greet(test: CrlfTest): string {\n  const message = `Hello, ${test.name}\\!`;\n  return message;\n}",
+      "ContextBefore": "File: crlf-line-endings.ts \u003e function greet",
+      "ContextAfter": "",
+      "StartLine": 9,
+      "EndLine": 12,
+      "EstimatedTokens": 28,
+      "OwnerQualifiedName": "greet",
+      "OwnerKind": "function",
+      "IsExportedContext": true,
+      "SemanticRole": "api_surface"
+    }
+  ],
+  "Issues": null,
+  "Exports": [
+    {
+      "ExportID": "exp_b9d1e18ed6f35b97",
+      "FilePath": "",
+      "ExportKind": "TYPE_ONLY",
+      "ExportedName": "CrlfTest",
+      "LocalName": "CrlfTest",
+      "SymbolID": "sym_ded4b747720aa799",
+      "SourceModule": "",
+      "Line": 4,
+      "Column": 0
+    },
+    {
+      "ExportID": "exp_c2582527b7f0bb0e",
+      "FilePath": "",
+      "ExportKind": "NAMED",
+      "ExportedName": "greet",
+      "LocalName": "greet",
+      "SymbolID": "sym_4b9b55f3a299f136",
+      "SourceModule": "",
+      "Line": 9,
+      "Column": 0
+    }
+  ],
+  "References": [
+    {
+      "ReferenceID": "ref_c3a15145ac54dee2",
+      "SourceFilePath": "",
+      "SourceSymbolID": "sym_c60fc64c2cdae143",
+      "ReferenceKind": "TYPE_REF",
+      "RawText": "CrlfTest",
+      "TargetName": "CrlfTest",
+      "QualifiedTargetHint": "",
+      "StartLine": 14,
+      "StartColumn": 13,
+      "EndLine": 14,
+      "EndColumn": 21,
+      "ResolutionScope": "LOCAL",
+      "ResolvedTargetSymbolID": "sym_ded4b747720aa799",
+      "Confidence": "HIGH"
+    }
+  ],
+  "JsxUsages": null,
+  "NetworkCalls": null,
+  "Facts": {
+    "HasJsx": false,
+    "HasDefaultExport": false,
+    "HasNamedExports": true,
+    "HasTopLevelSideEffects": false,
+    "HasReactHookCalls": false,
+    "HasFetchCalls": false,
+    "HasClassDeclarations": false,
+    "HasTests": false,
+    "HasConfigPatterns": false,
+    "JsxRuntime": ""
+  },
+  "Metadata": {
+    "ParserVersion": "1.0.0",
+    "GrammarVersion": "1.0.0",
+    "EnabledExtractors": [
+      "symbols",
+      "imports",
+      "exports",
+      "references",
+      "network_calls",
+      "chunks",
+      "diagnostics"
+    ]
+  },
+  "ExtractorStatuses": [
+    {
+      "ExtractorName": "symbols",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "imports",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "exports",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "references",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "network_calls",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "chunks",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "diagnostics",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    }
+  ]
+}

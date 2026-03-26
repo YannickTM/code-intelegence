@@ -1,0 +1,293 @@
+{
+  "version": "1.0.0",
+  "tools": [
+    {
+      "name": "search_code",
+      "description": "Semantic code search within a single project.",
+      "backend": {
+        "method": "POST",
+        "path": "/v1/projects/{project_id}/query/search"
+      },
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["project_id", "query"],
+        "properties": {
+          "project_id": { "type": "string", "format": "uuid" },
+          "query": { "type": "string", "minLength": 1 },
+          "language": {
+            "type": "string",
+            "enum": ["typescript", "javascript"]
+          },
+          "symbol_type": { "type": "string" },
+          "file_pattern": { "type": "string" },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 10
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "required": ["query_time_ms", "results"],
+        "properties": {
+          "query_time_ms": { "type": "integer" },
+          "index_snapshot_id": { "type": "string", "format": "uuid" },
+          "index_freshness_commit": { "type": "string" },
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["chunk_id", "score", "file_path", "start_line", "end_line", "content"],
+              "properties": {
+                "chunk_id": { "type": "string", "format": "uuid" },
+                "score": { "type": "number" },
+                "file_path": { "type": "string" },
+                "language": { "type": "string" },
+                "symbol_name": { "type": "string" },
+                "symbol_type": { "type": "string" },
+                "start_line": { "type": "integer" },
+                "end_line": { "type": "integer" },
+                "content": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "get_symbol_info",
+      "description": "Get symbol details by symbol id or symbol name.",
+      "backend": {
+        "method": "GET",
+        "path": "/v1/projects/{project_id}/symbols/{symbol_id}"
+      },
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["project_id"],
+        "properties": {
+          "project_id": { "type": "string", "format": "uuid" },
+          "symbol_id": { "type": "string", "format": "uuid" },
+          "symbol_name": { "type": "string" }
+        },
+        "anyOf": [
+          { "required": ["symbol_id"] },
+          { "required": ["symbol_name"] }
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "required": ["symbol"],
+        "properties": {
+          "query_time_ms": { "type": "integer" },
+          "index_snapshot_id": { "type": "string", "format": "uuid" },
+          "index_freshness_commit": { "type": "string" },
+          "symbol": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string", "format": "uuid" },
+              "name": { "type": "string" },
+              "qualified_name": { "type": "string" },
+              "kind": { "type": "string" },
+              "signature": { "type": "string" },
+              "start_line": { "type": "integer" },
+              "end_line": { "type": "integer" },
+              "doc_text": { "type": "string" },
+              "file_path": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "get_dependencies",
+      "description": "Get dependency edges for a project or a specific file scope.",
+      "backend": {
+        "method": "GET",
+        "path": "/v1/projects/{project_id}/dependencies"
+      },
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["project_id"],
+        "properties": {
+          "project_id": { "type": "string", "format": "uuid" },
+          "file_path": { "type": "string" },
+          "symbol_name": { "type": "string" },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 500,
+            "default": 100
+          }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "required": ["items"],
+        "properties": {
+          "query_time_ms": { "type": "integer" },
+          "index_snapshot_id": { "type": "string", "format": "uuid" },
+          "index_freshness_commit": { "type": "string" },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["source_file_path", "import_name", "import_type"],
+              "properties": {
+                "source_file_path": { "type": "string" },
+                "target_file_path": { "type": "string" },
+                "import_name": { "type": "string" },
+                "import_type": { "type": "string" },
+                "package_name": { "type": "string" },
+                "package_version": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "get_file_context",
+      "description": "Get context window and related symbols around a file location.",
+      "backend": {
+        "method": "GET",
+        "path": "/v1/projects/{project_id}/files/context"
+      },
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["project_id", "file_path"],
+        "properties": {
+          "project_id": { "type": "string", "format": "uuid" },
+          "file_path": { "type": "string" },
+          "line": { "type": "integer", "minimum": 1 },
+          "radius_lines": { "type": "integer", "minimum": 1, "maximum": 500, "default": 80 }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "required": ["file_path", "content"],
+        "properties": {
+          "query_time_ms": { "type": "integer" },
+          "index_snapshot_id": { "type": "string", "format": "uuid" },
+          "index_freshness_commit": { "type": "string" },
+          "file_path": { "type": "string" },
+          "start_line": { "type": "integer" },
+          "end_line": { "type": "integer" },
+          "content": { "type": "string" },
+          "symbols": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string", "format": "uuid" },
+                "name": { "type": "string" },
+                "kind": { "type": "string" },
+                "start_line": { "type": "integer" },
+                "end_line": { "type": "integer" }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "get_project_structure",
+      "description": "Get project tree and high-level module layout.",
+      "backend": {
+        "method": "GET",
+        "path": "/v1/projects/{project_id}/structure"
+      },
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["project_id"],
+        "properties": {
+          "project_id": { "type": "string", "format": "uuid" },
+          "depth": { "type": "integer", "minimum": 1, "maximum": 20, "default": 6 }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "required": ["root"],
+        "properties": {
+          "query_time_ms": { "type": "integer" },
+          "index_snapshot_id": { "type": "string", "format": "uuid" },
+          "index_freshness_commit": { "type": "string" },
+          "root": {
+            "type": "object",
+            "required": ["path", "node_type"],
+            "properties": {
+              "path": { "type": "string" },
+              "node_type": { "type": "string", "enum": ["directory", "file"] },
+              "children": {
+                "type": "array",
+                "items": { "$ref": "#/$defs/StructureNode" }
+              }
+            }
+          }
+        },
+        "$defs": {
+          "StructureNode": {
+            "type": "object",
+            "required": ["path", "node_type"],
+            "properties": {
+              "path": { "type": "string" },
+              "node_type": { "type": "string", "enum": ["directory", "file"] },
+              "children": {
+                "type": "array",
+                "items": { "$ref": "#/$defs/StructureNode" }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "get_conventions",
+      "description": "Detect project coding and architectural conventions from indexed artifacts.",
+      "backend": {
+        "method": "GET",
+        "path": "/v1/projects/{project_id}/conventions"
+      },
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["project_id"],
+        "properties": {
+          "project_id": { "type": "string", "format": "uuid" },
+          "language": { "type": "string", "enum": ["typescript", "javascript"] },
+          "limit": { "type": "integer", "minimum": 1, "maximum": 100, "default": 20 }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "required": ["items"],
+        "properties": {
+          "query_time_ms": { "type": "integer" },
+          "index_snapshot_id": { "type": "string", "format": "uuid" },
+          "index_freshness_commit": { "type": "string" },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "description"],
+              "properties": {
+                "name": { "type": "string" },
+                "description": { "type": "string" },
+                "evidence": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

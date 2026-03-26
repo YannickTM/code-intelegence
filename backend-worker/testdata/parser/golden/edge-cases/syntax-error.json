@@ -1,0 +1,149 @@
+{
+  "FilePath": "syntax-error.ts",
+  "Language": "typescript",
+  "FileHash": "bab3f2a1bff9076bbd9f7e2db17502fe6c903de24af16278fbd96a2663e9f142",
+  "SizeBytes": 571,
+  "LineCount": 24,
+  "Symbols": null,
+  "Imports": [],
+  "Chunks": [
+    {
+      "ChunkID": "syntax-error.ts:module_context:1-24",
+      "SymbolID": "",
+      "ChunkType": "module_context",
+      "ChunkHash": "bab3f2a1bff9076bbd9f7e2db17502fe6c903de24af16278fbd96a2663e9f142",
+      "Content": "// This file has intentional syntax errors for testing parser error handling.\n\nexport interface User {\n  id: string;\n  name: string\n  // Missing closing brace\n\nexport function processUser(user: User) {\n  const result = {\n    name: user.name,\n    // Unclosed object literal and function\n\nconst x: number = \"not a number;  // unclosed string literal\n\nclass BrokenClass extends {  // missing parent class\n  method( {  // unclosed parameter list\n    return\n  }\n}\n\nfunction orphanedBlock() {\n  if (true) {\n    console.log(\"ok\")\n  // missing closing braces for if and function\n",
+      "ContextBefore": "",
+      "ContextAfter": "",
+      "StartLine": 1,
+      "EndLine": 24,
+      "EstimatedTokens": 143,
+      "OwnerQualifiedName": "",
+      "OwnerKind": "",
+      "IsExportedContext": false,
+      "SemanticRole": "implementation"
+    }
+  ],
+  "Issues": [
+    {
+      "Code": "NO_EXPORTS",
+      "Message": "File has no exports",
+      "Line": 1,
+      "Column": 1,
+      "Severity": "info"
+    },
+    {
+      "Code": "PARSE_ERROR",
+      "Message": "Parse error",
+      "Line": 1,
+      "Column": 1,
+      "Severity": "error"
+    }
+  ],
+  "Exports": null,
+  "References": [
+    {
+      "ReferenceID": "ref_eb88b13d6a3bfcce",
+      "SourceFilePath": "",
+      "SourceSymbolID": "",
+      "ReferenceKind": "TYPE_REF",
+      "RawText": "User",
+      "TargetName": "User",
+      "QualifiedTargetHint": "",
+      "StartLine": 8,
+      "StartColumn": 34,
+      "EndLine": 8,
+      "EndColumn": 38,
+      "ResolutionScope": "UNKNOWN",
+      "ResolvedTargetSymbolID": "",
+      "Confidence": "LOW"
+    },
+    {
+      "ReferenceID": "ref_0fc9ad5a837e8715",
+      "SourceFilePath": "",
+      "SourceSymbolID": "",
+      "ReferenceKind": "CALL",
+      "RawText": "console.log",
+      "TargetName": "log",
+      "QualifiedTargetHint": "console.log",
+      "StartLine": 23,
+      "StartColumn": 4,
+      "EndLine": 23,
+      "EndColumn": 21,
+      "ResolutionScope": "MEMBER",
+      "ResolvedTargetSymbolID": "",
+      "Confidence": "MEDIUM"
+    }
+  ],
+  "JsxUsages": null,
+  "NetworkCalls": null,
+  "Facts": {
+    "HasJsx": false,
+    "HasDefaultExport": false,
+    "HasNamedExports": false,
+    "HasTopLevelSideEffects": false,
+    "HasReactHookCalls": false,
+    "HasFetchCalls": false,
+    "HasClassDeclarations": false,
+    "HasTests": false,
+    "HasConfigPatterns": false,
+    "JsxRuntime": ""
+  },
+  "Metadata": {
+    "ParserVersion": "1.0.0",
+    "GrammarVersion": "1.0.0",
+    "EnabledExtractors": [
+      "symbols",
+      "imports",
+      "exports",
+      "references",
+      "network_calls",
+      "chunks",
+      "diagnostics"
+    ]
+  },
+  "ExtractorStatuses": [
+    {
+      "ExtractorName": "symbols",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "imports",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "exports",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "references",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "network_calls",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "chunks",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "diagnostics",
+      "Status": "OK",
+      "IssueCount": 2,
+      "Message": ""
+    }
+  ]
+}

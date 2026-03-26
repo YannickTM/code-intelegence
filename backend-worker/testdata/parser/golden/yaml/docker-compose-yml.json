@@ -1,0 +1,186 @@
+{
+  "FilePath": "yaml/docker-compose.yml",
+  "Language": "yaml",
+  "FileHash": "ba98e0abec8db37960624b94f66411669d4f2243bca45c06ed3bb9f585e257b3",
+  "SizeBytes": 1995,
+  "LineCount": 90,
+  "Symbols": [
+    {
+      "SymbolID": "sym_427631d032fd8dcd",
+      "Name": "version",
+      "QualifiedName": "version",
+      "Kind": "variable",
+      "Signature": "version: \"3.9\"",
+      "StartLine": 1,
+      "EndLine": 1,
+      "DocText": "",
+      "SymbolHash": "4ec71419c6f329940d31ebae4c6a3ac8c5cdd050a1658974977dad579bf66baa",
+      "ParentSymbolID": "",
+      "Flags": {
+        "IsExported": false,
+        "IsDefaultExport": false,
+        "IsAsync": false,
+        "IsGenerator": false,
+        "IsStatic": false,
+        "IsAbstract": false,
+        "IsReadonly": false,
+        "IsOptional": false,
+        "IsArrowFunction": false,
+        "IsReactComponentLike": false,
+        "IsHookLike": false
+      },
+      "Modifiers": null,
+      "ReturnType": "",
+      "ParameterTypes": null
+    },
+    {
+      "SymbolID": "sym_7b9f423687354189",
+      "Name": "services",
+      "QualifiedName": "services",
+      "Kind": "variable",
+      "Signature": "services:",
+      "StartLine": 3,
+      "EndLine": 80,
+      "DocText": "",
+      "SymbolHash": "0ea71a93304604baad67a6c38b7a1bb6f1ace11a95e0ea5ead9d02962a6b4d00",
+      "ParentSymbolID": "",
+      "Flags": {
+        "IsExported": false,
+        "IsDefaultExport": false,
+        "IsAsync": false,
+        "IsGenerator": false,
+        "IsStatic": false,
+        "IsAbstract": false,
+        "IsReadonly": false,
+        "IsOptional": false,
+        "IsArrowFunction": false,
+        "IsReactComponentLike": false,
+        "IsHookLike": false
+      },
+      "Modifiers": null,
+      "ReturnType": "",
+      "ParameterTypes": null
+    },
+    {
+      "SymbolID": "sym_722d68ab34dfdd54",
+      "Name": "volumes",
+      "QualifiedName": "volumes",
+      "Kind": "variable",
+      "Signature": "volumes:",
+      "StartLine": 82,
+      "EndLine": 86,
+      "DocText": "",
+      "SymbolHash": "35184ccd284aadfbb22e8c7b9fd53c0f35c6a68111be07b6ad4b36a143851ae9",
+      "ParentSymbolID": "",
+      "Flags": {
+        "IsExported": false,
+        "IsDefaultExport": false,
+        "IsAsync": false,
+        "IsGenerator": false,
+        "IsStatic": false,
+        "IsAbstract": false,
+        "IsReadonly": false,
+        "IsOptional": false,
+        "IsArrowFunction": false,
+        "IsReactComponentLike": false,
+        "IsHookLike": false
+      },
+      "Modifiers": null,
+      "ReturnType": "",
+      "ParameterTypes": null
+    },
+    {
+      "SymbolID": "sym_df478e767806ad1c",
+      "Name": "networks",
+      "QualifiedName": "networks",
+      "Kind": "variable",
+      "Signature": "networks:",
+      "StartLine": 88,
+      "EndLine": 90,
+      "DocText": "",
+      "SymbolHash": "e761df0eca602e6dc2560b2caae705aebfdc8c9700c9a25a2d92dcdaf671dd03",
+      "ParentSymbolID": "",
+      "Flags": {
+        "IsExported": false,
+        "IsDefaultExport": false,
+        "IsAsync": false,
+        "IsGenerator": false,
+        "IsStatic": false,
+        "IsAbstract": false,
+        "IsReadonly": false,
+        "IsOptional": false,
+        "IsArrowFunction": false,
+        "IsReactComponentLike": false,
+        "IsHookLike": false
+      },
+      "Modifiers": null,
+      "ReturnType": "",
+      "ParameterTypes": null
+    }
+  ],
+  "Imports": null,
+  "Chunks": [
+    {
+      "ChunkID": "yaml/docker-compose.yml:module_context:1-90",
+      "SymbolID": "",
+      "ChunkType": "module_context",
+      "ChunkHash": "ba98e0abec8db37960624b94f66411669d4f2243bca45c06ed3bb9f585e257b3",
+      "Content": "version: \"3.9\"\n\nservices:\n  web:\n    build:\n      context: .\n      dockerfile: docker/Dockerfile\n      args:\n        NODE_ENV: production\n    image: acme/web-dashboard:latest\n    ports:\n      - \"3000:3000\"\n    environment:\n      - DATABASE_URL=postgresql://app:secret@db:5432/dashboard\n      - REDIS_URL=redis://cache:6379/0\n      - API_BASE_URL=http://api:8080\n      - LOG_LEVEL=info\n    depends_on:\n      db:\n        condition: service_healthy\n      cache:\n        condition: service_started\n    restart: unless-stopped\n    healthcheck:\n      test: [\"CMD\", \"curl\", \"-f\", \"http://localhost:3000/health\"]\n      interval: 30s\n      timeout: 10s\n      retries: 3\n\n  api:\n    build:\n      context: ./services/api\n      dockerfile: Dockerfile\n    image: acme/api-service:latest\n    ports:\n      - \"8080:8080\"\n    environment:\n      - DATABASE_URL=postgresql://app:secret@db:5432/dashboard\n      - JWT_SECRET=${JWT_SECRET}\n      - CORS_ORIGINS=http://localhost:3000\n    depends_on:\n      db:\n        condition: service_healthy\n\n  db:\n    image: postgres:16-alpine\n    volumes:\n      - postgres_data:/var/lib/postgresql/data\n      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql\n    environment:\n      POSTGRES_USER: app\n      POSTGRES_PASSWORD: secret\n      POSTGRES_DB: dashboard\n    ports:\n      - \"5432:5432\"\n    healthcheck:\n      test: [\"CMD-SHELL\", \"pg_isready -U app -d dashboard\"]\n      interval: 10s\n      timeout: 5s\n      retries: 5\n\n  cache:\n    image: redis:7-alpine\n    ports:\n      - \"6379:6379\"\n    volumes:\n      - redis_data:/data\n    command: redis-server --appendonly yes\n\n  worker:\n    build:\n      context: ./services/worker\n      dockerfile: Dockerfile\n    environment:\n      - DATABASE_URL=postgresql://app:secret@db:5432/dashboard\n      - REDIS_URL=redis://cache:6379/0\n      - WORKER_CONCURRENCY=4\n    depends_on:\n      - db\n      - cache\n\nvolumes:\n  postgres_data:\n    driver: local\n  redis_data:\n    driver: local\n\nnetworks:\n  default:\n    name: acme-network\n",
+      "ContextBefore": "",
+      "ContextAfter": "",
+      "StartLine": 1,
+      "EndLine": 90,
+      "EstimatedTokens": 499,
+      "OwnerQualifiedName": "",
+      "OwnerKind": "",
+      "IsExportedContext": false,
+      "SemanticRole": "implementation"
+    }
+  ],
+  "Issues": null,
+  "Exports": null,
+  "References": null,
+  "JsxUsages": null,
+  "NetworkCalls": null,
+  "Facts": {
+    "HasJsx": false,
+    "HasDefaultExport": false,
+    "HasNamedExports": false,
+    "HasTopLevelSideEffects": false,
+    "HasReactHookCalls": false,
+    "HasFetchCalls": false,
+    "HasClassDeclarations": false,
+    "HasTests": false,
+    "HasConfigPatterns": false,
+    "JsxRuntime": ""
+  },
+  "Metadata": {
+    "ParserVersion": "1.0.0",
+    "GrammarVersion": "1.0.0",
+    "EnabledExtractors": [
+      "symbols",
+      "chunks",
+      "diagnostics"
+    ]
+  },
+  "ExtractorStatuses": [
+    {
+      "ExtractorName": "symbols",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "chunks",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "diagnostics",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    }
+  ]
+}

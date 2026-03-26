@@ -1,0 +1,242 @@
+{
+  "FilePath": "deeply-nested.js",
+  "Language": "javascript",
+  "FileHash": "fd5bfc3fc6f82aa36e0628d653de62e54482f36b88a539f3fd2d16e8a6692002",
+  "SizeBytes": 1540,
+  "LineCount": 47,
+  "Symbols": [
+    {
+      "SymbolID": "sym_ef37dae00b0cfad2",
+      "Name": "processData",
+      "QualifiedName": "processData",
+      "Kind": "function",
+      "Signature": "function processData(input)",
+      "StartLine": 4,
+      "EndLine": 45,
+      "DocText": "",
+      "SymbolHash": "aba0f8414bc1e7048b7d1c487ec55e734470bd40043ab787d313f089a70c63d5",
+      "ParentSymbolID": "",
+      "Flags": {
+        "IsExported": false,
+        "IsDefaultExport": false,
+        "IsAsync": false,
+        "IsGenerator": false,
+        "IsStatic": false,
+        "IsAbstract": false,
+        "IsReadonly": false,
+        "IsOptional": false,
+        "IsArrowFunction": false,
+        "IsReactComponentLike": false,
+        "IsHookLike": false
+      },
+      "Modifiers": null,
+      "ReturnType": "",
+      "ParameterTypes": null
+    }
+  ],
+  "Imports": [],
+  "Chunks": [
+    {
+      "ChunkID": "deeply-nested.js:module_context:1-3",
+      "SymbolID": "",
+      "ChunkType": "module_context",
+      "ChunkHash": "750f7ff1b9d9c0de41dd2e41ca8a09cd9fd07b3f47aa506a71898ba3c860bcb9",
+      "Content": "// Deeply nested code to test DEEP_NESTING diagnostic detection.\n// Contains 12+ levels of nesting to exceed the threshold of 6.\n",
+      "ContextBefore": "",
+      "ContextAfter": "",
+      "StartLine": 1,
+      "EndLine": 3,
+      "EstimatedTokens": 33,
+      "OwnerQualifiedName": "",
+      "OwnerKind": "",
+      "IsExportedContext": false,
+      "SemanticRole": "implementation"
+    },
+    {
+      "ChunkID": "deeply-nested.js:function:4-45",
+      "SymbolID": "sym_ef37dae00b0cfad2",
+      "ChunkType": "function",
+      "ChunkHash": "aba0f8414bc1e7048b7d1c487ec55e734470bd40043ab787d313f089a70c63d5",
+      "Content": "function processData(input) {\n  if (input) {\n    for (let i = 0; i \u003c input.length; i++) {\n      if (input[i].active) {\n        try {\n          for (const key of Object.keys(input[i].data)) {\n            if (key.startsWith(\"item\")) {\n              switch (input[i].data[key].type) {\n                case \"nested\":\n                  if (input[i].data[key].children) {\n                    for (const child of input[i].data[key].children) {\n                      if (child.valid) {\n                        while (child.pending) {\n                          if (child.retries \u003e 0) {\n                            try {\n                              // Level 12+ nesting\n                              console.log(\"deeply nested operation\");\n                              child.pending = false;\n                            } catch (innerErr) {\n                              child.retries--;\n                            }\n                          } else {\n                            break;\n                          }\n                        }\n                      }\n                    }\n                  }\n                  break;\n                case \"flat\":\n                  console.log(\"flat item\");\n                  break;\n              }\n            }\n          }\n        } catch (err) {\n          console.error(\"Error processing item\", err);\n        }\n      }\n    }\n  }\n}",
+      "ContextBefore": "File: deeply-nested.js \u003e function processData",
+      "ContextAfter": "",
+      "StartLine": 4,
+      "EndLine": 45,
+      "EstimatedTokens": 344,
+      "OwnerQualifiedName": "processData",
+      "OwnerKind": "function",
+      "IsExportedContext": false,
+      "SemanticRole": "implementation"
+    }
+  ],
+  "Issues": [
+    {
+      "Code": "NO_EXPORTS",
+      "Message": "File has no exports",
+      "Line": 1,
+      "Column": 1,
+      "Severity": "info"
+    },
+    {
+      "Code": "DEEP_NESTING",
+      "Message": "Nesting depth 7 exceeds threshold 6",
+      "Line": 11,
+      "Column": 15,
+      "Severity": "warning"
+    }
+  ],
+  "Exports": null,
+  "References": [
+    {
+      "ReferenceID": "ref_ff1408bcc83da275",
+      "SourceFilePath": "",
+      "SourceSymbolID": "sym_ef37dae00b0cfad2",
+      "ReferenceKind": "CALL",
+      "RawText": "Object.keys",
+      "TargetName": "keys",
+      "QualifiedTargetHint": "Object.keys",
+      "StartLine": 9,
+      "StartColumn": 28,
+      "EndLine": 9,
+      "EndColumn": 54,
+      "ResolutionScope": "MEMBER",
+      "ResolvedTargetSymbolID": "",
+      "Confidence": "MEDIUM"
+    },
+    {
+      "ReferenceID": "ref_f762753bde58e07e",
+      "SourceFilePath": "",
+      "SourceSymbolID": "sym_ef37dae00b0cfad2",
+      "ReferenceKind": "CALL",
+      "RawText": "key.startsWith",
+      "TargetName": "startsWith",
+      "QualifiedTargetHint": "key.startsWith",
+      "StartLine": 10,
+      "StartColumn": 16,
+      "EndLine": 10,
+      "EndColumn": 38,
+      "ResolutionScope": "MEMBER",
+      "ResolvedTargetSymbolID": "",
+      "Confidence": "MEDIUM"
+    },
+    {
+      "ReferenceID": "ref_1a19e1e4d6eae1a8",
+      "SourceFilePath": "",
+      "SourceSymbolID": "sym_ef37dae00b0cfad2",
+      "ReferenceKind": "CALL",
+      "RawText": "console.log",
+      "TargetName": "log",
+      "QualifiedTargetHint": "console.log",
+      "StartLine": 20,
+      "StartColumn": 30,
+      "EndLine": 20,
+      "EndColumn": 68,
+      "ResolutionScope": "MEMBER",
+      "ResolvedTargetSymbolID": "",
+      "Confidence": "MEDIUM"
+    },
+    {
+      "ReferenceID": "ref_f4be582c699f3de5",
+      "SourceFilePath": "",
+      "SourceSymbolID": "sym_ef37dae00b0cfad2",
+      "ReferenceKind": "CALL",
+      "RawText": "console.log",
+      "TargetName": "log",
+      "QualifiedTargetHint": "console.log",
+      "StartLine": 34,
+      "StartColumn": 18,
+      "EndLine": 34,
+      "EndColumn": 42,
+      "ResolutionScope": "MEMBER",
+      "ResolvedTargetSymbolID": "",
+      "Confidence": "MEDIUM"
+    },
+    {
+      "ReferenceID": "ref_17c8d240955fda35",
+      "SourceFilePath": "",
+      "SourceSymbolID": "sym_ef37dae00b0cfad2",
+      "ReferenceKind": "CALL",
+      "RawText": "console.error",
+      "TargetName": "error",
+      "QualifiedTargetHint": "console.error",
+      "StartLine": 40,
+      "StartColumn": 10,
+      "EndLine": 40,
+      "EndColumn": 53,
+      "ResolutionScope": "MEMBER",
+      "ResolvedTargetSymbolID": "",
+      "Confidence": "MEDIUM"
+    }
+  ],
+  "JsxUsages": null,
+  "NetworkCalls": null,
+  "Facts": {
+    "HasJsx": false,
+    "HasDefaultExport": false,
+    "HasNamedExports": false,
+    "HasTopLevelSideEffects": false,
+    "HasReactHookCalls": false,
+    "HasFetchCalls": false,
+    "HasClassDeclarations": false,
+    "HasTests": false,
+    "HasConfigPatterns": false,
+    "JsxRuntime": ""
+  },
+  "Metadata": {
+    "ParserVersion": "1.0.0",
+    "GrammarVersion": "1.0.0",
+    "EnabledExtractors": [
+      "symbols",
+      "imports",
+      "exports",
+      "references",
+      "network_calls",
+      "chunks",
+      "diagnostics"
+    ]
+  },
+  "ExtractorStatuses": [
+    {
+      "ExtractorName": "symbols",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "imports",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "exports",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "references",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "network_calls",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "chunks",
+      "Status": "OK",
+      "IssueCount": 0,
+      "Message": ""
+    },
+    {
+      "ExtractorName": "diagnostics",
+      "Status": "OK",
+      "IssueCount": 2,
+      "Message": ""
+    }
+  ]
+}

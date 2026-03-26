@@ -1,0 +1,221 @@
+syntax = "proto3";
+
+package parser.v1;
+
+option go_package = "github.com/myjungle-code/contracts/proto/parser/v1;parserv1";
+
+service ParserService {
+  rpc Health(HealthRequest) returns (HealthResponse);
+  rpc ParseFile(ParseFileRequest) returns (ParseFileResponse);
+  rpc ParseFiles(ParseFilesRequest) returns (ParseFilesResponse);
+}
+
+message HealthRequest {}
+
+message HealthResponse {
+  string status = 1;
+  string version = 2;
+}
+
+message ParseTarget {
+  string file_path = 1;
+  string content = 2;
+  string language = 3; // typescript | javascript
+}
+
+message ParseFileRequest {
+  string project_id = 1;
+  string branch = 2;
+  string git_commit = 3;
+  ParseTarget target = 4;
+}
+
+message ParseFilesRequest {
+  string project_id = 1;
+  string branch = 2;
+  string git_commit = 3;
+  repeated ParseTarget targets = 4;
+}
+
+message ParseFileResponse {
+  ParsedFile file = 1;
+}
+
+message ParseFilesResponse {
+  repeated ParsedFile files = 1;
+}
+
+message ParsedFile {
+  string file_path = 1;
+  string language = 2;
+  string file_hash = 3;
+  int64 size_bytes = 4;
+  int32 line_count = 5;
+  repeated ParsedSymbol symbols = 6;
+  repeated ParsedImport imports = 7;
+  repeated ParsedChunk chunks = 8;
+  repeated ParseIssue issues = 9;
+
+  // v2 extensions
+  repeated ParsedExport exports = 10;
+  repeated ParsedReference references = 11;
+  repeated ParsedJsxUsage jsx_usages = 12;
+  repeated ParsedNetworkCall network_calls = 13;
+  ParsedFileFacts facts = 14;
+  ParserMetadata metadata = 15;
+  repeated ExtractorStatus extractor_statuses = 16;
+}
+
+message ParsedSymbol {
+  string symbol_id = 1;
+  string name = 2;
+  string qualified_name = 3;
+  string kind = 4;
+  string signature = 5;
+  int32 start_line = 6;
+  int32 end_line = 7;
+  string doc_text = 8;
+  string symbol_hash = 9;
+  string parent_symbol_id = 10;
+
+  // v2 extensions
+  ParsedSymbolFlags flags = 11;
+  repeated string modifiers = 12;
+  string return_type = 13;
+  repeated string parameter_types = 14;
+}
+
+message ParsedSymbolFlags {
+  bool is_exported = 1;
+  bool is_default_export = 2;
+  bool is_async = 3;
+  bool is_generator = 4;
+  bool is_static = 5;
+  bool is_abstract = 6;
+  bool is_readonly = 7;
+  bool is_optional = 8;
+  bool is_arrow_function = 9;
+  bool is_react_component_like = 10;
+  bool is_hook_like = 11;
+}
+
+message ParsedImport {
+  string source_symbol_id = 1;
+  string source_file_path = 2;
+  string target_file_path = 3;
+  string import_name = 4;
+  string import_type = 5; // INTERNAL | EXTERNAL | STDLIB
+  string package_name = 6;
+  string package_version = 7;
+}
+
+message ParsedChunk {
+  string chunk_id = 1;
+  string symbol_id = 2;
+  string chunk_type = 3; // function | class | module_context | config | test
+  string chunk_hash = 4;
+  string content = 5;
+  string context_before = 6;
+  string context_after = 7;
+  int32 start_line = 8;
+  int32 end_line = 9;
+  int32 estimated_tokens = 10;
+
+  // v2 extensions
+  string owner_qualified_name = 11;
+  string owner_kind = 12;
+  bool is_exported_context = 13;
+  string semantic_role = 14; // implementation | api_surface | config | test | ui_component | hook
+}
+
+message ParseIssue {
+  string code = 1;
+  string message = 2;
+  int32 line = 3;
+  int32 column = 4;
+  string severity = 5; // info | warning | error
+}
+
+// ---------------------------------------------------------------------------
+// v2 messages
+// ---------------------------------------------------------------------------
+
+message ParsedExport {
+  string export_id = 1;
+  string file_path = 2;
+  string export_kind = 3;       // NAMED | DEFAULT | REEXPORT | EXPORT_ALL | TYPE_ONLY
+  string exported_name = 4;     // name visible to consumers
+  string local_name = 5;        // local symbol name if applicable
+  string symbol_id = 6;         // linked local symbol if resolvable
+  string source_module = 7;     // for re-exports: the module specifier
+  int32 line = 8;
+  int32 column = 9;
+}
+
+message ParsedReference {
+  string reference_id = 1;              // stable deterministic ID
+  string source_file_path = 2;
+  string source_symbol_id = 3;          // enclosing symbol if any, else empty
+  string reference_kind = 4;            // CALL | JSX_RENDER | TYPE_REF | VALUE_REF | EXTENDS | IMPLEMENTS | NEW_EXPR | HOOK_USE | FETCH | DECORATOR | EXPORTS
+  string raw_text = 5;                  // exact source text or normalized text
+  string target_name = 6;               // best-effort target identifier
+  string qualified_target_hint = 7;     // e.g. UserService.getUser or React.useEffect
+  int32 start_line = 8;
+  int32 start_column = 9;
+  int32 end_line = 10;
+  int32 end_column = 11;
+  string resolution_scope = 12;         // LOCAL | IMPORTED | MEMBER | GLOBAL | UNKNOWN
+  string resolved_target_symbol_id = 13;// optional if resolvable within file
+  string confidence = 14;               // HIGH | MEDIUM | LOW
+}
+
+message ParsedJsxUsage {
+  string usage_id = 1;
+  string source_symbol_id = 2;         // enclosing component/function
+  string component_name = 3;           // e.g. UserProfile
+  bool is_intrinsic = 4;               // div/span vs custom component
+  bool is_fragment = 5;
+  int32 line = 6;
+  int32 column = 7;
+  string resolved_target_symbol_id = 8; // same-file only, optional
+  string confidence = 9;
+}
+
+message ParsedNetworkCall {
+  string network_call_id = 1;
+  string source_symbol_id = 2;
+  string client_kind = 3;              // FETCH | AXIOS | KY | GRAPHQL | UNKNOWN
+  string method = 4;                   // GET | POST | PUT | PATCH | DELETE | UNKNOWN
+  string url_literal = 5;              // if literal string
+  string url_template = 6;             // normalized if template string
+  bool is_relative = 7;
+  int32 start_line = 8;
+  int32 start_column = 9;
+  string confidence = 10;
+}
+
+message ParsedFileFacts {
+  bool has_jsx = 1;
+  bool has_default_export = 2;
+  bool has_named_exports = 3;
+  bool has_top_level_side_effects = 4;
+  bool has_react_hook_calls = 5;
+  bool has_fetch_calls = 6;
+  bool has_class_declarations = 7;
+  bool has_tests = 8;
+  bool has_config_patterns = 9;
+  string jsx_runtime = 10;             // react | preact | unknown
+}
+
+message ParserMetadata {
+  string parser_version = 1;
+  string grammar_version = 2;
+  repeated string enabled_extractors = 3;
+}
+
+message ExtractorStatus {
+  string extractor_name = 1;
+  string status = 2;           // OK | PARTIAL | FAILED
+  int32 issue_count = 3;
+  string message = 4;
+}

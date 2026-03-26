@@ -1,0 +1,26 @@
+{
+  "FilePath": "binary-content.dat",
+  "Language": "",
+  "FileHash": "cde57832cd54119421da3546640d15ef0cbf0a5f5631e03677e54ef351b088de",
+  "SizeBytes": 127,
+  "LineCount": 4,
+  "Symbols": null,
+  "Imports": null,
+  "Chunks": null,
+  "Issues": [
+    {
+      "Code": "UNSUPPORTED_LANGUAGE",
+      "Message": "Unsupported file extension: .dat",
+      "Line": 0,
+      "Column": 0,
+      "Severity": "info"
+    }
+  ],
+  "Exports": null,
+  "References": null,
+  "JsxUsages": null,
+  "NetworkCalls": null,
+  "Facts": null,
+  "Metadata": null,
+  "ExtractorStatuses": null
+}
