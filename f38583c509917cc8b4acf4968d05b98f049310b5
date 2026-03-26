@@ -1,0 +1,1324 @@
+concept/tickets/backend-api/14-commit-endpoints.md
+  7a47588eceb73ddd 1-91
+concept/tickets/backoffice/08-symbol-browser.md
+  7a47588eceb73ddd 1-108
+backoffice/src/components/project-detail/file-tree-file.tsx
+  7a47588eceb73ddd 1-32
+backend-worker/internal/parser/extractors/references.go
+  7a47588eceb73ddd 1-1091
+backend-worker/internal/workspace/workspace_test.go
+  7a47588eceb73ddd 1-1164
+backoffice/src/lib/dashboard-types.ts
+  7a47588eceb73ddd 1-38
+backend-api/internal/providers/types.go
+  7a47588eceb73ddd 1-32
+backend-worker/testdata/parser/golden/edge-cases/binary-content-dat.json
+  7a47588eceb73ddd 1-26
+backoffice/CHANGELOG.md
+  7a47588eceb73ddd 1-327
+backend-api/internal/middleware/requestid.go
+  7a47588eceb73ddd 1-42
+backoffice/src/hooks/use-dismissed-alerts.ts
+  7a47588eceb73ddd 1-65
+backoffice/src/server/api/routers/project-files.ts
+  7a47588eceb73ddd 1-450
+backend-worker/testdata/parser/fixtures/typescript/react-component.tsx
+  7a47588eceb73ddd 1-92
+backend-api/internal/auth/token.go
+  7a47588eceb73ddd 1-52
+backoffice/src/server/api/routers/project-search.ts
+  7a47588eceb73ddd 1-308
+backoffice/src/components/platform-settings/workflow-badges.tsx
+  7a47588eceb73ddd 1-22
+backend-worker/testdata/parser/edge-cases/mixed-encoding.rb
+  731c6b729f778366 1-17
+backoffice/src/hooks/use-project-mutations.ts
+  7a47588eceb73ddd 1-37
+backoffice/src/components/settings/profile-form.tsx
+  7a47588eceb73ddd 1-247
+backend-api/internal/sshkey/service_test.go
+  7a47588eceb73ddd 1-110
+backoffice/README.md
+  7a47588eceb73ddd 1-133
+backend-api/internal/providers/endpoint.go
+  7a47588eceb73ddd 1-42
+backend-worker/testdata/parser/golden/hcl/main-tf.json
+  7a47588eceb73ddd 1-436
+backoffice/src/components/project-detail/settings-ssh-key.tsx
+  7a47588eceb73ddd 1-242
+backoffice/src/app/(app)/project/[id]/commits/page.tsx
+  7a47588eceb73ddd 1-9
+backoffice/src/components/project-detail/settings-provider-card.tsx
+  7a47588eceb73ddd 1-961
+backoffice/src/components/settings/api-keys-content.tsx
+  7a47588eceb73ddd 1-159
+backend-worker/internal/parser/benchmark_test.go
+  7a47588eceb73ddd 1-74
+backend-api/internal/health/checker_test.go
+  7a47588eceb73ddd 1-37
+backend-worker/internal/parser/registry/registry.go
+  7a47588eceb73ddd 1-207
+backend-api/internal/handler/dashboard.go
+  7a47588eceb73ddd 1-86
+backend-worker/testdata/parser/golden/edge-cases/syntax-error.json
+  7a47588eceb73ddd 1-149
+concept/tickets/backend-worker/02-queue-dispatch.md
+  7a47588eceb73ddd 1-102
+backend-api/Dockerfile
+  7a47588eceb73ddd 1-33
+backend-api/internal/sshkey/encrypt.go
+  7a47588eceb73ddd 1-58
+datastore/REDIS.md
+  7a47588eceb73ddd 1-258
+backoffice/src/components/api-keys/types.ts
+  7a47588eceb73ddd 1-20
+backoffice/src/components/ui/select.tsx
+  7a47588eceb73ddd 1-190
+backoffice/src/proxy.ts
+  7a47588eceb73ddd 1-33
+backoffice/src/app/api/auth/oidc/bridge/route.ts
+  7a47588eceb73ddd 1-100
+concept/tickets/backend-worker/04-workspace.md
+  7a47588eceb73ddd 1-105
+backend-worker/internal/workflow/incremental/copyforward.go
+  7a47588eceb73ddd 1-380
+backoffice/src/components/projects/projects-toolbar.tsx
+  7a47588eceb73ddd 1-52
+backoffice/src/components/project-detail/add-member-dialog.tsx
+  7a47588eceb73ddd 1-255
+backend-api/internal/config/defaults.go
+  7a47588eceb73ddd 1-85
+backend-api/internal/middleware/cors.go
+  7a47588eceb73ddd 1-39
+backend-api/internal/validate/validate.go
+  7a47588eceb73ddd 1-194
+backend-api/internal/middleware/identity_test.go
+  7a47588eceb73ddd 1-106
+concept/tickets/backoffice/12-commit-browser.md
+  7a47588eceb73ddd 1-127
+backend-api/internal/auth/session_test.go
+  7a47588eceb73ddd 1-119
+backend-api/internal/handler/user_test.go
+  7a47588eceb73ddd 1-224
+backend-worker/internal/parser/registry/languages.go
+  7a47588eceb73ddd 1-879
+concept/tickets/backend-api/15-platform-admin.md
+  7a47588eceb73ddd 1-101
+concept/tickets/backend-worker/00-overview.md
+  7a47588eceb73ddd 1-149
+datastore/postgres/sqlc/admin_users.sql.go
+  7a47588eceb73ddd 1-217
+datastore/postgres/queries/sessions.sql
+  7a47588eceb73ddd 1-33
+backoffice/eslint.config.js
+  7a47588eceb73ddd 1-65
+backoffice/src/server/api/routers/project-embedding.ts
+  7a47588eceb73ddd 1-158
+backend-worker/internal/embedding/client_test.go
+  7a47588eceb73ddd 1-178
+backoffice/src/lib/wizard-state.ts
+  7a47588eceb73ddd 1-111
+backend-worker/testdata/parser/golden/python/flask-api.json
+  7a47588eceb73ddd 1-1767
+backend-worker/internal/registry/registry.go
+  7a47588eceb73ddd 1-230
+backoffice/src/components/search-dialog.tsx
+  7a47588eceb73ddd 1-53
+concept/tickets/backoffice/00-overview.md
+  7a47588eceb73ddd 1-122
+go.work.sum
+  7a47588eceb73ddd 1-248
+backoffice/src/app/(app)/project/[id]/page.tsx
+  7a47588eceb73ddd 1-46
+backend-api/internal/handler/sshkey.go
+  7a47588eceb73ddd 1-371
+backoffice/src/app/(app)/dashboard/page.tsx
+  7a47588eceb73ddd 1-12
+backoffice/src/components/project-detail/ssh-key-card.tsx
+  7a47588eceb73ddd 1-119
+backend-worker/testdata/parser/fixtures/java/spring-service.java
+  7a47588eceb73ddd 1-146
+backoffice/src/components/ui/label.tsx
+  7a47588eceb73ddd 1-24
+backoffice/src/app/(app)/project/[id]/file/page.tsx
+  7a47588eceb73ddd 1-30
+backend-worker/internal/workspace/integration_test.go
+  7a47588eceb73ddd 1-253
+backend-worker/Dockerfile
+  7a47588eceb73ddd 1-40
+backoffice/Dockerfile
+  7a47588eceb73ddd 1-35
+backoffice/src/components/settings/ssh-keys-content.tsx
+  7a47588eceb73ddd 1-166
+backend-worker/internal/parser/engine/engine_test.go
+  7a47588eceb73ddd 1-1084
+backend-api/internal/handler/provider_helpers_test.go
+  7a47588eceb73ddd 1-89
+backoffice/src/components/project-detail/file-viewer-content.tsx
+  7a47588eceb73ddd 1-378
+concept/tickets/backend-api/08-provider-settings.md
+  7a47588eceb73ddd 1-111
+backoffice/next.config.js
+  7a47588eceb73ddd 1-27
+datastore/postgres/sqlc/auth.sql.go
+  7a47588eceb73ddd 1-756
+backend-api/internal/handler/commitquery_test.go
+  7a47588eceb73ddd 1-197
+backend-api/internal/domain/models_test.go
+  7a47588eceb73ddd 1-72
+backend-worker/internal/parser/engine/engine.go
+  7a47588eceb73ddd 1-487
+backend-worker/internal/vectorstore/client_test.go
+  7a47588eceb73ddd 1-255
+backoffice/src/components/project-detail/code-search.tsx
+  7a47588eceb73ddd 1-526
+backend-worker/internal/app/app.go
+  7a47588eceb73ddd 1-199
+backoffice/src/components/platform-settings/workers-content.tsx
+  7a47588eceb73ddd 1-104
+datastore/go.mod
+  7a47588eceb73ddd 1-23
+backend-api/internal/llm/service_test.go
+  7a47588eceb73ddd 1-28
+backend-api/internal/health/postgres.go
+  7a47588eceb73ddd 1-41
+backoffice/src/components/ui/table.tsx
+  7a47588eceb73ddd 1-116
+backoffice/src/app/(app)/platform-settings/workers/page.tsx
+  7a47588eceb73ddd 1-9
+backoffice/src/components/theme-provider.tsx
+  7a47588eceb73ddd 1-10
+backend-api/internal/storage/postgres/tx.go
+  7a47588eceb73ddd 1-69
+backoffice/src/components/dashboard/project-health-list.tsx
+  7a47588eceb73ddd 1-56
+concept/tickets/backend-api/07-api-key-management.md
+  7a47588eceb73ddd 1-86
+backend-worker/testdata/parser/golden/edge-cases/deeply-nested-js.json
+  7a47588eceb73ddd 1-242
+backoffice/src/app/(app)/chats/[id]/page.tsx
+  7a47588eceb73ddd 1-14
+backend-api/internal/providers/ollama.go
+  7a47588eceb73ddd 1-149
+backend-api/internal/middleware/cors_test.go
+  7a47588eceb73ddd 1-179
+backoffice/src/components/ui/collapsible.tsx
+  7a47588eceb73ddd 1-34
+backend-worker/testdata/parser/golden/edge-cases/empty.json
+  7a47588eceb73ddd 1-18
+backend-api/internal/sshkey/service.go
+  7a47588eceb73ddd 1-61
+backend-api/internal/handler/health_test.go
+  7a47588eceb73ddd 1-228
+backend-api/internal/handler/llm.go
+  7a47588eceb73ddd 1-579
+go.work
+  7a47588eceb73ddd 1-7
+backend-api/cmd/api/main.go
+  7a47588eceb73ddd 1-58
+backoffice/src/components/projects/projects-table.tsx
+  7a47588eceb73ddd 1-68
+backend-api/internal/handler/auth_test.go
+  7a47588eceb73ddd 1-80
+backoffice/src/components/ui/alert.tsx
+  7a47588eceb73ddd 1-66
+backend-worker/internal/workflow/dispatcher.go
+  7a47588eceb73ddd 1-45
+backoffice/src/components/create-project/step-ssh-key.tsx
+  7a47588eceb73ddd 1-242
+backend-api/tests/integration/sse_test.go
+  7a47588eceb73ddd 1-219
+backend-worker/internal/config/config.go
+  7a47588eceb73ddd 1-401
+backend-worker/internal/indexing/resolve_test.go
+  7a47588eceb73ddd 1-627
+backoffice/src/server/api/routers/platform-users.ts
+  7a47588eceb73ddd 1-215
+mcpserver/.gitignore
+  7a47588eceb73ddd 1-22
+concept/tickets/backend-api/03-user-management.md
+  7a47588eceb73ddd 1-71
+contracts/redis/worker-status.v1.schema.json
+  7a47588eceb73ddd 1-96
+backend-worker/internal/parser/extractors/file_meta.go
+  7a47588eceb73ddd 1-14
+concept/tickets/backend-api/05-ssh-key-management.md
+  7a47588eceb73ddd 1-100
+backoffice/src/components/ui/textarea.tsx
+  7a47588eceb73ddd 1-18
+backend-worker/testdata/parser/golden/go/http-handler.json
+  7a47588eceb73ddd 1-2012
+backend-api/internal/handler/symbolquery_test.go
+  7a47588eceb73ddd 1-494
+backend-worker/internal/parser/extractors/utils.go
+  7a47588eceb73ddd 1-193
+backoffice/src/components/create-project/new-project-content.tsx
+  7a47588eceb73ddd 1-117
+backoffice/src/components/api-keys/index.ts
+  7a47588eceb73ddd 1-6
+backend-api/internal/handler/respond_test.go
+  7a47588eceb73ddd 1-263
+datastore/postgres/queries/symbols.sql
+  7a47588eceb73ddd 1-26
+backend-api/internal/embedding/service.go
+  7a47588eceb73ddd 1-975
+backend-worker/internal/gitclient/integration_test.go
+  7a47588eceb73ddd 1-176
+backoffice/src/lib/format.test.ts
+  7a47588eceb73ddd 1-45
+backoffice/src/components/ssh-keys/ssh-key-table.tsx
+  7a47588eceb73ddd 1-171
+concept/tickets/backend-worker/09-pipeline.md
+  7a47588eceb73ddd 1-103
+backend-api/internal/storage/postgres/migrate.go
+  7a47588eceb73ddd 1-10
+backend-worker/testdata/parser/edge-cases/bom-utf8.ts
+  7a47588eceb73ddd 1-13
+README.md
+  7a47588eceb73ddd 1-111
+backend-api/internal/middleware/projectrole.go
+  7a47588eceb73ddd 1-184
+backend-api/internal/middleware/platformadmin.go
+  7a47588eceb73ddd 1-71
+backoffice/src/hooks/use-sse-connection.ts
+  7a47588eceb73ddd 1-161
+backend-api/internal/jobhealth/checker.go
+  7a47588eceb73ddd 1-169
+backoffice/src/components/ssh-keys/create-key-dialog.tsx
+  7a47588eceb73ddd 1-240
+backoffice/tsconfig.json
+  7a47588eceb73ddd 1-53
+concept/tickets/backend-api/01-foundation.md
+  7a47588eceb73ddd 1-106
+concept/tickets/backoffice/04-project-members-ssh.md
+  7a47588eceb73ddd 1-100
+concept/tickets/backoffice/14-platform-admin.md
+  7a47588eceb73ddd 1-156
+datastore/CHANGELOG.md
+  7a47588eceb73ddd 1-133
+datastore/postgres/docs/index-data-model.md
+  7a47588eceb73ddd 1-239
+backoffice/src/components/nav-user.tsx
+  7a47588eceb73ddd 1-171
+backoffice/vitest.config.ts
+  7a47588eceb73ddd 1-16
+datastore/postgres/queries/admin_users.sql
+  7a47588eceb73ddd 1-53
+backend-worker/testdata/parser/edge-cases/unicode-identifiers.py
+  7a47588eceb73ddd 1-44
+contracts/README.md
+  7a47588eceb73ddd 1-17
+datastore/postgres/migrations/000002_seed_admin_account.down.sql
+  7a47588eceb73ddd 1-13
+backoffice/src/server/api/routers/project-llm.ts
+  7a47588eceb73ddd 1-155
+backend-api/internal/handler/embedding.go
+  7a47588eceb73ddd 1-643
+backend-api/internal/embedding/service_test.go
+  7a47588eceb73ddd 1-55
+backend-api/internal/handler/codesearchquery_test.go
+  7a47588eceb73ddd 1-334
+docker-compose.yaml
+  7a47588eceb73ddd 1-198
+backend-worker/internal/workflow/stub.go
+  7a47588eceb73ddd 1-22
+backoffice/src/components/create-project/step-done.tsx
+  7a47588eceb73ddd 1-91
+backoffice/src/server/api/routers/platform-embedding.ts
+  7a47588eceb73ddd 1-186
+backend-worker/internal/embedding/client.go
+  7a47588eceb73ddd 1-178
+backend-worker/internal/parser/extractors/exports_test.go
+  7a47588eceb73ddd 1-692
+datastore/postgres/sqlc/querier.go
+  7a47588eceb73ddd 1-277
+backoffice/src/components/projects/projects-content.tsx
+  7a47588eceb73ddd 1-146
+backend-worker/internal/parser/extractors/file_meta_test.go
+  7a47588eceb73ddd 1-76
+backoffice/src/server/api/routers/platform-workers.ts
+  7a47588eceb73ddd 1-58
+datastore/postgres/queries/symbol_references.sql
+  7a47588eceb73ddd 1-11
+backend-api/internal/domain/worker.go
+  7a47588eceb73ddd 1-17
+backoffice/src/app/api/auth/clear-session/route.ts
+  7a47588eceb73ddd 1-16
+backoffice/src/components/dashboard/health-strip.tsx
+  7a47588eceb73ddd 1-106
+backend-worker/internal/workflow/fullindex/handler_test.go
+  7a47588eceb73ddd 1-1122
+backoffice/src/components/platform-settings/user-management-content.tsx
+  7a47588eceb73ddd 1-310
+backoffice/src/components/project-detail/file-tree-view.tsx
+  7a47588eceb73ddd 1-50
+backoffice/postcss.config.js
+  7a47588eceb73ddd 1-5
+backoffice/src/components/api-keys/create-key-dialog.tsx
+  7a47588eceb73ddd 1-271
+backoffice/src/app/(app)/chats/page.tsx
+  7a47588eceb73ddd 1-14
+concept/tickets/backend-api/02-authentication.md
+  7a47588eceb73ddd 1-94
+backend-api/internal/handler/respond.go
+  7a47588eceb73ddd 1-92
+backend-worker/cmd/worker/main.go
+  7a47588eceb73ddd 1-45
+backend-worker/internal/registry/registry_test.go
+  7a47588eceb73ddd 1-170
+backend-worker/internal/parser/extractors/references_test.go
+  7a47588eceb73ddd 1-790
+concept/tickets/backend-api/04-project-lifecycle.md
+  7a47588eceb73ddd 1-112
+backend-api/internal/domain/errors_test.go
+  7a47588eceb73ddd 1-175
+backend-api/tests/integration/membership_test.go
+  7a47588eceb73ddd 1-1061
+backoffice/.env.example
+  7a47588eceb73ddd 1-31
+backend-api/internal/testutil/writers.go
+  7a47588eceb73ddd 1-10
+backend-worker/internal/parser/pool_test.go
+  7a47588eceb73ddd 1-287
+backoffice/src/hooks/use-project-detail-mutations.ts
+  7a47588eceb73ddd 1-72
+backoffice/src/stores/events-store.ts
+  7a47588eceb73ddd 1-49
+backoffice/src/components/ui/badge.tsx
+  7a47588eceb73ddd 1-48
+concept/tickets/backoffice/01-app-shell.md
+  7a47588eceb73ddd 1-105
+mcpserver/src/tools.ts
+  7a47588eceb73ddd 1-166
+datastore/postgres/README.md
+  7a47588eceb73ddd 1-22
+datastore/postgres/sqlc/.gitkeep
+  7a47588eceb73ddd 1
+backoffice/src/components/create-project/step-indicator.tsx
+  7a47588eceb73ddd 1-66
+backend-worker/internal/artifact/writer_test.go
+  7a47588eceb73ddd 1-483
+backend-worker/internal/indexing/pipeline_test.go
+  7a47588eceb73ddd 1-338
+mcpserver/tsconfig.json
+  7a47588eceb73ddd 1-14
+backend-api/tests/integration/dashboard_test.go
+  7a47588eceb73ddd 1-447
+backoffice/src/app/(app)/project/[id]/settings/page.tsx
+  7a47588eceb73ddd 1-37
+backoffice/src/components/ui/skeleton.tsx
+  7a47588eceb73ddd 1-13
+backend-api/tests/integration/apikey_test.go
+  7a47588eceb73ddd 1-747
+backend-api/internal/handler/codesearchquery.go
+  7a47588eceb73ddd 1-175
+backend-api/tests/integration/sshkey_test.go
+  7a47588eceb73ddd 1-523
+backend-worker/testdata/parser/golden/rust/cli-parser.json
+  7a47588eceb73ddd 1-1894
+backend-api/tests/integration/user_test.go
+  7a47588eceb73ddd 1-646
+datastore/postgres/sqlc/db.go
+  7a47588eceb73ddd 1-32
+backend-api/tests/integration/sse_notification_test.go
+  7a47588eceb73ddd 1-372
+datastore/postgres/migrations/000001_init.up.sql
+  7a47588eceb73ddd 1-768
+backend-api/internal/handler/project_filehistory_test.go
+  7a47588eceb73ddd 1-108
+concept/03-relational-db.md
+  7a47588eceb73ddd 1-633
+datastore/postgres/queries/network_calls.sql
+  7a47588eceb73ddd 1-10
+backend-api/internal/providers/connectivity_allowlist.go
+  7a47588eceb73ddd 1-89
+datastore/postgres/queries/keys_and_settings.sql
+  7a47588eceb73ddd 1-419
+backoffice/src/app/page.tsx
+  7a47588eceb73ddd 1-13
+backend-worker/internal/parser/extractors/symbols.go
+  7a47588eceb73ddd 1-1225
+backend-worker/testdata/parser/fixtures/rust/cli-parser.rs
+  7a47588eceb73ddd 1-146
+concept/tickets/backend-worker/07-extractors-exports-refs.md
+  7a47588eceb73ddd 1-132
+backoffice/src/components/project-detail/project-detail-skeleton.tsx
+  7a47588eceb73ddd 1-39
+backoffice/src/components/dashboard/empty-state.tsx
+  7a47588eceb73ddd 1-32
+backend-api/internal/middleware/logging.go
+  7a47588eceb73ddd 1-60
+backend-worker/internal/parser/extractors/diagnostics_test.go
+  7a47588eceb73ddd 1-550
+backoffice/src/components/project-detail/dependency-graph-node.tsx
+  7a47588eceb73ddd 1-51
+backoffice/src/server/api/routers/dashboard.ts
+  7a47588eceb73ddd 1-37
+backend-worker/testdata/parser/golden/json/package-json.json
+  7a47588eceb73ddd 1-73
+DOCKER.md
+  7a47588eceb73ddd 1-148
+concept/tickets/backend-worker/11-incremental-index.md
+  7a47588eceb73ddd 1-92
+backoffice/src/components/project-detail/code-block.tsx
+  7a47588eceb73ddd 1-118
+backend-api/internal/redisclient/reader.go
+  7a47588eceb73ddd 1-103
+backend-worker/internal/parser/extractors/imports_test.go
+  7a47588eceb73ddd 1-1129
+backend-api/internal/auth/token_test.go
+  7a47588eceb73ddd 1-114
+backoffice/src/components/project-detail/file-references-card.tsx
+  7a47588eceb73ddd 1-192
+concept/tickets/backoffice/06-indexing-monitor.md
+  7a47588eceb73ddd 1-114
+backend-api/internal/sse/publisher.go
+  7a47588eceb73ddd 1-62
+backoffice/src/components/project-detail/file-browser.tsx
+  7a47588eceb73ddd 1-115
+datastore/postgres/migrations/000002_seed_admin_account.up.sql
+  7a47588eceb73ddd 1-24
+backoffice/src/app/(app)/settings/profile/page.tsx
+  7a47588eceb73ddd 1-9
+datastore/postgres/queries/auth.sql
+  7a47588eceb73ddd 1-221
+backend-worker/internal/embedding/version_test.go
+  7a47588eceb73ddd 1-158
+backoffice/src/components/project-detail/markdown-preview.tsx
+  7a47588eceb73ddd 1-74
+backoffice/.dockerignore
+  7a47588eceb73ddd 1-5
+backoffice/src/app/(app)/project/[id]/commits/[hash]/page.tsx
+  7a47588eceb73ddd 1-11
+backoffice/src/server/api/routers/users.ts
+  7a47588eceb73ddd 1-231
+concept/tickets/backoffice/07-code-search.md
+  7a47588eceb73ddd 1-97
+backoffice/src/components/create-project/step-project-details.tsx
+  7a47588eceb73ddd 1-116
+datastore/postgres/queries/ssh_keys.sql
+  7a47588eceb73ddd 1-63
+backoffice/src/components/create-project/step-deploy-key.tsx
+  7a47588eceb73ddd 1-248
+backoffice/src/components/project-detail/settings-api-keys.tsx
+  7a47588eceb73ddd 1-170
+datastore/postgres/sqlc/platform_roles.sql.go
+  7a47588eceb73ddd 1-209
+mcpserver/package.json
+  7a47588eceb73ddd 1-28
+backend-api/tests/integration/apikey_auth_test.go
+  7a47588eceb73ddd 1-813
+backend-worker/testdata/parser/golden/yaml/docker-compose-yml.json
+  7a47588eceb73ddd 1-186
+backoffice/src/components/ui/card.tsx
+  7a47588eceb73ddd 1-92
+backend-api/internal/dbconv/dbconv.go
+  7a47588eceb73ddd 1-397
+backend-api/internal/queue/publisher.go
+  7a47588eceb73ddd 1-109
+backoffice/src/app/(app)/project/page.tsx
+  7a47588eceb73ddd 1-9
+backoffice/src/components/ui/tabs.tsx
+  7a47588eceb73ddd 1-91
+backend-worker/testdata/parser/golden/typescript/react-component.json
+  7a47588eceb73ddd 1-959
+backoffice/src/lib/project-status.test.ts
+  7a47588eceb73ddd 1-126
+backoffice/src/server/api/routers/auth.ts
+  7a47588eceb73ddd 1-43
+backoffice/src/components/logo.tsx
+  7a47588eceb73ddd 1-10
+concept/tickets/backend-worker/12-commit-indexing.md
+  7a47588eceb73ddd 1-110
+concept/tickets/backend-worker/13-events-safety.md
+  7a47588eceb73ddd 1-115
+datastore/postgres/sqlc/exports.sql.go
+  7a47588eceb73ddd 1-101
+backend-api/internal/providers/registry.go
+  7a47588eceb73ddd 1-81
+backoffice/src/lib/utils.ts
+  7a47588eceb73ddd 1-6
+backend-worker/internal/parser/normalize_test.go
+  7a47588eceb73ddd 1-91
+backoffice/src/components/project-detail/file-facts-card.tsx
+  7a47588eceb73ddd 1-79
+backend-api/tests/integration/setup_test.go
+  7a47588eceb73ddd 1-307
+backend-worker/internal/sshenv/sshenv_test.go
+  7a47588eceb73ddd 1-371
+backend-api/internal/health/stub.go
+  7a47588eceb73ddd 1-19
+backend-api/Makefile
+  7a47588eceb73ddd 1-13
+backend-api/internal/handler/project.go
+  7a47588eceb73ddd 1-2696
+backoffice/src/components/project-detail/file-jsx-usages-card.tsx
+  7a47588eceb73ddd 1-167
+backoffice/src/components/project-detail/file-tree-empty.tsx
+  7a47588eceb73ddd 1-32
+concept/tickets/backend-api/16-dashboard.md
+  7a47588eceb73ddd 1-87
+datastore/postgres/sqlc/commits.sql.go
+  7a47588eceb73ddd 1-945
+backend-api/internal/providersetting/common.go
+  7a47588eceb73ddd 1-123
+backend-api/internal/logger/context.go
+  7a47588eceb73ddd 1-21
+backoffice/src/server/api/routers/projects.ts
+  7a47588eceb73ddd 1-347
+backoffice/src/app/layout.tsx
+  7a47588eceb73ddd 1-37
+backoffice/src/components/project-detail/file-network-calls-card.tsx
+  7a47588eceb73ddd 1-169
+concept/tickets/backoffice/03-projects.md
+  7a47588eceb73ddd 1-130
+concept/tickets/backoffice/05-project-providers-keys.md
+  7a47588eceb73ddd 1-124
+backoffice/src/app/(app)/settings/api-keys/page.tsx
+  7a47588eceb73ddd 1-9
+backoffice/src/app/api/trpc/[trpc]/route.ts
+  7a47588eceb73ddd 1-34
+concept/tickets/backoffice/10-file-analysis-cards.md
+  7a47588eceb73ddd 1-138
+backoffice/src/components/platform-settings/provider-card.tsx
+  7a47588eceb73ddd 1-478
+backend-worker/internal/workflow/commits/indexer_test.go
+  7a47588eceb73ddd 1-677
+backoffice/src/app/(app)/platform-settings/llm/page.tsx
+  7a47588eceb73ddd 1-9
+backoffice/src/hooks/use-mobile.ts
+  7a47588eceb73ddd 1-21
+concept/08-platform-admin.md
+  7a47588eceb73ddd 1-412
+backend-api/internal/sshkey/keygen.go
+  7a47588eceb73ddd 1-112
+backoffice/src/components/project-detail/file-icon.tsx
+  7a47588eceb73ddd 1-43
+backend-worker/internal/logger/logger.go
+  7a47588eceb73ddd 1-48
+backoffice/src/components/ssh-keys/retire-key-dialog.tsx
+  7a47588eceb73ddd 1-122
+backend-worker/internal/parser/pool.go
+  7a47588eceb73ddd 1-110
+backend-api/tests/integration/health_test.go
+  7a47588eceb73ddd 1-188
+concept/tickets/backend-api/13-file-endpoints.md
+  7a47588eceb73ddd 1-81
+backend-worker/testdata/parser/golden/java/spring-service.json
+  7a47588eceb73ddd 1-2241
+documentation/YannickTM-myjungle-code-wiki-v4.md
+  731c6b729f778366 1-3689
+backend-api/tests/integration/symbol_test.go
+  7a47588eceb73ddd 1-811
+backend-worker/internal/parser/extractors/network_test.go
+  7a47588eceb73ddd 1-579
+datastore/postgres/sqlc/projects.sql.go
+  7a47588eceb73ddd 1-455
+backoffice/src/components/project-detail/change-type-badge.tsx
+  7a47588eceb73ddd 1-28
+backoffice/src/components/project-detail/index-summary-card.tsx
+  7a47588eceb73ddd 1-57
+backoffice/src/components/project-detail/commit-detail-content.tsx
+  7a47588eceb73ddd 1-401
+backend-worker/internal/parser/domain.go
+  7a47588eceb73ddd 1-188
+datastore/postgres/sqlc/sessions.sql.go
+  7a47588eceb73ddd 1-134
+contracts/events/sse-event.v1.schema.json
+  7a47588eceb73ddd 1-130
+backend-worker/internal/parser/extractors/imports.go
+  7a47588eceb73ddd 1-1228
+backend-api/internal/handler/project_filetree_test.go
+  7a47588eceb73ddd 1-142
+backend-worker/testdata/parser/fixtures/hcl/main.tf
+  7a47588eceb73ddd 1-122
+backend-api/go.mod
+  7a47588eceb73ddd 1-81
+backoffice/src/components/dashboard/dashboard-content.tsx
+  7a47588eceb73ddd 1-122
+backoffice/src/app/(app)/settings/ssh-keys/page.tsx
+  7a47588eceb73ddd 1-9
+backoffice/src/lib/project-status.ts
+  7a47588eceb73ddd 1-53
+concept/00-architectural-decisions.md
+  7a47588eceb73ddd 1-356
+backend-worker/internal/vectorstore/client.go
+  7a47588eceb73ddd 1-237
+backoffice/src/components/project-detail/symbol-detail-panel.tsx
+  7a47588eceb73ddd 1-216
+backend-worker/internal/repository/job.go
+  7a47588eceb73ddd 1-283
+backoffice/src/components/ui/checkbox.tsx
+  7a47588eceb73ddd 1-32
+datastore/QDRANT.md
+  7a47588eceb73ddd 1-109
+backend-api/internal/handler/health.go
+  7a47588eceb73ddd 1-80
+docker-compose.backend.yaml
+  7a47588eceb73ddd 1-172
+backend-api/internal/middleware/bodylimit.go
+  7a47588eceb73ddd 1-17
+backend-worker/internal/parser/extractors/exports.go
+  7a47588eceb73ddd 1-946
+concept/tickets/backoffice/13-user-settings.md
+  7a47588eceb73ddd 1-99
+backend-api/internal/handler/commits_test.go
+  7a47588eceb73ddd 1-390
+datastore/postgres/sqlc/indexing.sql.go
+  7a47588eceb73ddd 1-930
+backend-worker/internal/workflow/fullindex/handler.go
+  7a47588eceb73ddd 1-622
+backoffice/src/components/projects/project-actions.tsx
+  7a47588eceb73ddd 1-117
+backoffice/src/components/recent-projects-list.tsx
+  7a47588eceb73ddd 1-76
+backoffice/src/app/api/auth/login/route.ts
+  7a47588eceb73ddd 1-79
+backend-api/internal/middleware/bodylimit_test.go
+  7a47588eceb73ddd 1-60
+datastore/postgres/queries/exports.sql
+  7a47588eceb73ddd 1-9
+datastore/postgres/queries/jsx_usages.sql
+  7a47588eceb73ddd 1-10
+backend-api/internal/logger/logger.go
+  7a47588eceb73ddd 1-45
+backend-api/internal/logger/logger_test.go
+  7a47588eceb73ddd 1-118
+backend-worker/internal/config/defaults.go
+  7a47588eceb73ddd 1-41
+backend-worker/internal/parser/golden_test.go
+  7a47588eceb73ddd 1-260
+backend-worker/testdata/parser/golden/edge-cases/very-long-lines.json
+  7a47588eceb73ddd 1-214
+backend-api/internal/middleware/requestid_test.go
+  7a47588eceb73ddd 1-98
+backoffice/src/app/(app)/platform-settings/users/page.tsx
+  7a47588eceb73ddd 1-9
+backoffice/src/app/(app)/project/create/page.tsx
+  7a47588eceb73ddd 1-9
+backoffice/src/components/project-detail/code-search-result.tsx
+  7a47588eceb73ddd 1-371
+backoffice/src/components/project-detail/file-dependencies-card.tsx
+  7a47588eceb73ddd 1-253
+backoffice/src/components/ui/separator.tsx
+  7a47588eceb73ddd 1-28
+backoffice/src/app/(app)/settings/system/page.tsx
+  7a47588eceb73ddd 1-14
+backoffice/src/components/ui/tooltip.tsx
+  7a47588eceb73ddd 1-57
+backoffice/src/lib/provider-endpoint-url.ts
+  7a47588eceb73ddd 1-18
+backend-worker/internal/artifact/writer.go
+  7a47588eceb73ddd 1-334
+contracts/mcp/tools.v1.json
+  7a47588eceb73ddd 1-293
+contracts/queue/workflow-task.v1.schema.json
+  7a47588eceb73ddd 1-102
+backend-api/internal/middleware/recover_test.go
+  7a47588eceb73ddd 1-81
+backend-worker/testdata/parser/edge-cases/syntax-error.ts
+  7a47588eceb73ddd 1-24
+backend-worker/internal/parser/batch.go
+  7a47588eceb73ddd 1-48
+backoffice/src/components/ssh-keys/key-detail-dialog.tsx
+  7a47588eceb73ddd 1-227
+backend-worker/testdata/parser/fixtures/json/package.json
+  7a47588eceb73ddd 1-47
+backend-worker/internal/parser/registry/registry_test.go
+  7a47588eceb73ddd 1-450
+backoffice/src/components/theme-toggle.tsx
+  7a47588eceb73ddd 1-41
+backend-worker/testdata/parser/fixtures/jsx/app-component.jsx
+  7a47588eceb73ddd 1-81
+backend-worker/internal/workflow/dispatcher_test.go
+  7a47588eceb73ddd 1-82
+backend-api/internal/handler/provider_helpers.go
+  7a47588eceb73ddd 1-44
+backend-worker/internal/sshkey/decrypt.go
+  7a47588eceb73ddd 1-40
+datastore/postgres/queries/commits.sql
+  7a47588eceb73ddd 1-211
+backoffice/src/components/ui/sheet.tsx
+  7a47588eceb73ddd 1-143
+backoffice/src/lib/repo-url.ts
+  7a47588eceb73ddd 1-73
+backoffice/src/server/api/routers/providers.ts
+  7a47588eceb73ddd 1-34
+backend-worker/testdata/parser/golden/edge-cases/unicode-identifiers.json
+  7a47588eceb73ddd 1-583
+concept/tickets/backend-worker/08-extractors-chunks-diagnostics.md
+  7a47588eceb73ddd 1-120
+backend-api/internal/app/routes.go
+  7a47588eceb73ddd 1-251
+backend-api/internal/handler/auth.go
+  7a47588eceb73ddd 1-159
+concept/tickets/backend-worker/03-job-lifecycle.md
+  7a47588eceb73ddd 1-88
+concept/07-mcp-interface.md
+  7a47588eceb73ddd 1-183
+datastore/postgres/queries/files.sql
+  7a47588eceb73ddd 1-58
+backend-worker/testdata/parser/golden/edge-cases/mixed-encoding-rb.json
+  7a47588eceb73ddd 1-250
+backoffice/src/components/project-detail/settings-danger-zone.tsx
+  7a47588eceb73ddd 1-149
+backend-api/internal/handler/symbolquery.go
+  7a47588eceb73ddd 1-340
+backend-worker/internal/parser/grammars.go
+  7a47588eceb73ddd 1-82
+datastore/postgres/sqlc/symbol_references.sql.go
+  7a47588eceb73ddd 1-123
+backoffice/src/server/api/routers/project-members.ts
+  7a47588eceb73ddd 1-157
+backend-api/internal/middleware/projectrole_test.go
+  7a47588eceb73ddd 1-73
+backoffice/src/components/page-header.tsx
+  7a47588eceb73ddd 1-19
+backend-api/internal/config/config_test.go
+  7a47588eceb73ddd 1-768
+concept/backlog/04-scaling.md
+  7a47588eceb73ddd 1-178
+backoffice/src/components/project-detail/file-tree-types.ts
+  7a47588eceb73ddd 1-8
+datastore/postgres/sqlc/dependencies.sql.go
+  7a47588eceb73ddd 1-373
+datastore/postgres/sqlc/files.sql.go
+  7a47588eceb73ddd 1-247
+backoffice/src/server/api/routers/ssh-keys.ts
+  7a47588eceb73ddd 1-187
+backoffice/src/app/api/auth/logout/route.ts
+  7a47588eceb73ddd 1-18
+backoffice/src/components/ui/input.tsx
+  7a47588eceb73ddd 1-21
+backoffice/src/app/(auth)/login/page.tsx
+  7a47588eceb73ddd 1-49
+concept/backlog/01-external-authentication.md
+  7a47588eceb73ddd 1-132
+sqlc.yaml
+  7a47588eceb73ddd 1-16
+backend-api/tests/integration/embedding_test.go
+  7a47588eceb73ddd 1-890
+backend-api/README.md
+  7a47588eceb73ddd 1-289
+backend-api/.gitignore
+  7a47588eceb73ddd 1-22
+backoffice/src/components/platform-settings/worker-table.tsx
+  7a47588eceb73ddd 1-134
+backend-api/internal/handler/helpers_test.go
+  7a47588eceb73ddd 1-31
+backend-worker/testdata/parser/edge-cases/crlf-line-endings.ts
+  7a47588eceb73ddd 1-18
+datastore/postgres/sqlc/network_calls.sql.go
+  7a47588eceb73ddd 1-110
+backend-worker/internal/gitclient/gitclient.go
+  7a47588eceb73ddd 1-690
+backend-worker/internal/workflow/incremental/handler_test.go
+  7a47588eceb73ddd 1-1278
+backoffice/src/components/dashboard/project-health-row.tsx
+  7a47588eceb73ddd 1-60
+backoffice/src/components/project-detail/html-preview.tsx
+  7a47588eceb73ddd 1-39
+backoffice/src/components/project-detail/settings-embedding.tsx
+  7a47588eceb73ddd 1-153
+concept/02-qdrant-vector-db.md
+  7a47588eceb73ddd 1-121
+backoffice/src/components/project-detail/jobs-content.tsx
+  7a47588eceb73ddd 1-435
+backoffice/src/app/(app)/platform-settings/page.tsx
+  7a47588eceb73ddd 1-5
+backend-api/internal/app/routes_test.go
+  7a47588eceb73ddd 1-291
+backend-api/internal/sse/hub_test.go
+  7a47588eceb73ddd 1-428
+backoffice/src/app/api/auth/signup/route.ts
+  7a47588eceb73ddd 1-123
+backend-api/internal/secrets/codec.go
+  7a47588eceb73ddd 1-56
+backend-worker/internal/parser/hashing_test.go
+  7a47588eceb73ddd 1-225
+concept/tickets/backoffice/09-file-browser.md
+  7a47588eceb73ddd 1-107
+backoffice/src/components/project-detail/settings-members.tsx
+  7a47588eceb73ddd 1-472
+backoffice/src/lib/auth-client.ts
+  7a47588eceb73ddd 1-13
+backend-api/internal/handler/commitquery.go
+  7a47588eceb73ddd 1-73
+backend-worker/internal/embedding/version.go
+  7a47588eceb73ddd 1-89
+backoffice/src/components/platform-settings/user-actions.tsx
+  7a47588eceb73ddd 1-310
+concept/tickets/backend-api/06-project-membership.md
+  7a47588eceb73ddd 1-70
+backend-api/.golangci.yml
+  7a47588eceb73ddd 1-51
+backend-api/internal/middleware/metrics_test.go
+  7a47588eceb73ddd 1-113
+backoffice/src/components/project-detail/quick-actions-card.tsx
+  7a47588eceb73ddd 1-46
+backoffice/src/components/projects/project-row.tsx
+  7a47588eceb73ddd 1-106
+backoffice/src/components/ssh-keys/index.ts
+  7a47588eceb73ddd 1-5
+backend-worker/testdata/parser/fixtures/yaml/docker-compose.yml
+  7a47588eceb73ddd 1-90
+mcpserver/Dockerfile
+  7a47588eceb73ddd 1-46
+backoffice/src/server/api/routers/provider-router-shared.ts
+  7a47588eceb73ddd 1-46
+backoffice/src/app/(app)/project/[id]/symbols/page.tsx
+  7a47588eceb73ddd 1-9
+datastore/postgres/sqlc/symbols.sql.go
+  7a47588eceb73ddd 1-156
+backend-api/internal/metrics/collector.go
+  7a47588eceb73ddd 1-99
+backend-worker/internal/indexing/pipeline.go
+  7a47588eceb73ddd 1-298
+backend-api/CHANGELOG.md
+  7a47588eceb73ddd 1-801
+backend-worker/internal/notify/publisher.go
+  7a47588eceb73ddd 1-167
+backoffice/package.json
+  7a47588eceb73ddd 1-80
+backoffice/src/app/api/auth/[...all]/route.ts
+  7a47588eceb73ddd 1-16
+backend-api/internal/handler/apikey.go
+  7a47588eceb73ddd 1-281
+backoffice/.npmrc
+  7a47588eceb73ddd 1-2
+backoffice/src/components/api-keys/delete-key-dialog.tsx
+  7a47588eceb73ddd 1-69
+datastore/postgres/queries/projects.sql
+  7a47588eceb73ddd 1-150
+backend-api/internal/domain/models.go
+  7a47588eceb73ddd 1-262
+backend-worker/internal/workflow/commits/indexer.go
+  7a47588eceb73ddd 1-232
+backend-api/internal/sse/subscriber.go
+  7a47588eceb73ddd 1-257
+backoffice/src/components/project-detail/dependency-graph-dialog.tsx
+  7a47588eceb73ddd 1-237
+backend-api/internal/config/config.go
+  7a47588eceb73ddd 1-704
+backend-api/internal/dbconv/dbconv_test.go
+  7a47588eceb73ddd 1-305
+backoffice/src/components/ui/avatar.tsx
+  7a47588eceb73ddd 1-109
+backend-api/internal/sshkey/encrypt_test.go
+  7a47588eceb73ddd 1-62
+datastore/qdrant/docs/commit-embeddings.md
+  7a47588eceb73ddd 1-162
+datastore/postgres/queries/api_keys.sql
+  7a47588eceb73ddd 1-86
+backoffice/src/app/api/events/stream/route.ts
+  7a47588eceb73ddd 1-32
+concept/tickets/backend-api/12-symbol-query.md
+  7a47588eceb73ddd 1-93
+backend-worker/internal/notify/publisher_test.go
+  7a47588eceb73ddd 1-259
+backend-worker/internal/queue/consumer.go
+  7a47588eceb73ddd 1-101
+concept/tickets/backend-worker/05-parser-engine.md
+  7a47588eceb73ddd 1-150
+datastore/postgres/queries/platform_roles.sql
+  7a47588eceb73ddd 1-65
+backend-api/internal/llm/service.go
+  7a47588eceb73ddd 1-863
+backend-worker/testdata/parser/fixtures/python/flask-api.py
+  7a47588eceb73ddd 1-117
+backoffice/src/lib/auth.ts
+  7a47588eceb73ddd 1-56
+backoffice/src/components/project-detail/commits-content.tsx
+  7a47588eceb73ddd 1-408
+ARCHITECTURE.md
+  7a47588eceb73ddd 1-190
+backend-worker/.gitignore
+  7a47588eceb73ddd 1-22
+backend-worker/internal/parser/extractors/chunks_test.go
+  7a47588eceb73ddd 1-936
+backend-worker/testdata/parser/fixtures/go/http-handler.go
+  7a47588eceb73ddd 1-125
+backoffice/src/server/api/routers/project-keys.ts
+  7a47588eceb73ddd 1-139
+concept/04-backend-api.md
+  7a47588eceb73ddd 1-557
+backend-api/internal/membership/service.go
+  7a47588eceb73ddd 1-272
+datastore/postgres/sqlc/ssh_keys.sql.go
+  7a47588eceb73ddd 1-260
+backend-worker/internal/parser/extractors/diagnostics.go
+  7a47588eceb73ddd 1-374
+datastore/postgres/queries/dependencies.sql
+  7a47588eceb73ddd 1-90
+backend-worker/testdata/parser/fixtures/bash/deploy-script.sh
+  7a47588eceb73ddd 1-93
+backoffice/src/app/(app)/project/[id]/jobs/page.tsx
+  7a47588eceb73ddd 1-9
+backend-worker/internal/parser/extractors/network.go
+  7a47588eceb73ddd 1-756
+backoffice/src/server/api/routers/project-indexing.ts
+  7a47588eceb73ddd 1-110
+backoffice/src/components/project-detail/mermaid-preview.tsx
+  7a47588eceb73ddd 1-108
+concept/backlog/02-invite-system.md
+  7a47588eceb73ddd 1-78
+backoffice/.gitignore
+  7a47588eceb73ddd 1-46
+backend-worker/README.md
+  7a47588eceb73ddd 1-150
+backend-api/internal/apikey/keygen_test.go
+  7a47588eceb73ddd 1-99
+backend-api/internal/validate/validate_test.go
+  7a47588eceb73ddd 1-288
+backend-worker/internal/parser/batch_test.go
+  7a47588eceb73ddd 1-126
+.env.example
+  7a47588eceb73ddd 1-47
+backend-worker/internal/parser/extractors/jsx_test.go
+  7a47588eceb73ddd 1-379
+backoffice/src/app/(app)/layout.tsx
+  7a47588eceb73ddd 1-54
+backend-api/internal/middleware/recover.go
+  7a47588eceb73ddd 1-34
+backend-api/internal/providers/connectivity.go
+  7a47588eceb73ddd 1-56
+backoffice/src/components/project-detail/file-tree-skeleton.tsx
+  7a47588eceb73ddd 1-31
+concept/tickets/backend-worker/14-job-reaper.md
+  7a47588eceb73ddd 1-190
+concept/tickets/backoffice/11-dependency-graph.md
+  7a47588eceb73ddd 1-115
+backend-worker/internal/parser/extractors/jsx.go
+  7a47588eceb73ddd 1-210
+backoffice/src/components/ssh-keys/types.ts
+  7a47588eceb73ddd 1-22
+concept/tickets/backend-api/11-code-search.md
+  7a47588eceb73ddd 1-110
+backend-api/internal/secrets/codec_test.go
+  7a47588eceb73ddd 1-90
+backend-worker/Makefile
+  7a47588eceb73ddd 1-16
+backoffice/src/server/api/root.ts
+  7a47588eceb73ddd 1-56
+backend-worker/internal/execution/context.go
+  7a47588eceb73ddd 1-27
+backend-api/internal/health/checker.go
+  7a47588eceb73ddd 1-24
+backend-worker/internal/parser/extractors/chunks.go
+  7a47588eceb73ddd 1-468
+backoffice/src/components/project-detail/leave-project-dialog.tsx
+  7a47588eceb73ddd 1-90
+backend-api/internal/handler/user.go
+  7a47588eceb73ddd 1-488
+backend-worker/internal/gitclient/gitclient_test.go
+  7a47588eceb73ddd 1-1268
+concept/tickets/backend-api/09-indexing-orchestration.md
+  7a47588eceb73ddd 1-95
+backend-api/internal/middleware/identity.go
+  7a47588eceb73ddd 1-134
+backoffice/src/components/app-sidebar.tsx
+  7a47588eceb73ddd 1-221
+backoffice/src/env.js
+  7a47588eceb73ddd 1-56
+backend-worker/internal/indexing/resolve.go
+  7a47588eceb73ddd 1-278
+backoffice/src/components/ui/dialog.tsx
+  7a47588eceb73ddd 1-160
+backoffice/src/hooks/use-debounce.ts
+  7a47588eceb73ddd 1-12
+backend-api/.env.example
+  7a47588eceb73ddd 1-40
+backend-api/internal/providers/connectivity_test.go
+  7a47588eceb73ddd 1-238
+backend-api/internal/sse/hub.go
+  7a47588eceb73ddd 1-313
+backend-api/internal/app/app.go
+  7a47588eceb73ddd 1-394
+backend-worker/internal/sshenv/sshenv.go
+  7a47588eceb73ddd 1-153
+backoffice/src/components/project-detail/file-exports-card.tsx
+  7a47588eceb73ddd 1-144
+concept/backlog/05-multiple-embedding-providers.md
+  7a47588eceb73ddd 1-313
+concept/tickets/backend-api/17-lazy-job-reaper.md
+  7a47588eceb73ddd 1-151
+backoffice/src/components/platform-settings/llm-provider-list.tsx
+  7a47588eceb73ddd 1-426
+contracts/openapi/v1.yaml
+  7a47588eceb73ddd 1-2098
+backend-api/tests/integration/project_file_history_test.go
+  7a47588eceb73ddd 1-299
+backend-api/tests/integration/project_test.go
+  7a47588eceb73ddd 1-1234
+backend-worker/internal/parser/integration_test.go
+  7a47588eceb73ddd 1-428
+backend-worker/testdata/parser/edge-cases/very-long-lines.py
+  7a47588eceb73ddd 1-6
+backoffice/src/trpc/react.tsx
+  7a47588eceb73ddd 1-78
+backoffice/src/app/(app)/project/[id]/layout.tsx
+  7a47588eceb73ddd 1-83
+backoffice/src/components/project-detail/file-history-card.tsx
+  7a47588eceb73ddd 1-246
+backoffice/src/app/(auth)/layout.tsx
+  7a47588eceb73ddd 1-11
+datastore/postgres/queries/indexing.sql
+  7a47588eceb73ddd 1-214
+datastore/POSTGRES.md
+  7a47588eceb73ddd 1-98
+backoffice/src/components/project-detail/file-context-panel.tsx
+  7a47588eceb73ddd 1-113
+backoffice/src/components/auth/login-form.tsx
+  7a47588eceb73ddd 1-340
+backend-api/internal/providersetting/common_test.go
+  7a47588eceb73ddd 1-264
+backend-worker/internal/workspace/workspace.go
+  7a47588eceb73ddd 1-454
+backoffice/src/lib/health-utils.ts
+  7a47588eceb73ddd 1-103
+backoffice/src/app/(app)/platform-settings/layout.tsx
+  7a47588eceb73ddd 1-75
+backend-worker/internal/queue/consumer_test.go
+  7a47588eceb73ddd 1-125
+datastore/postgres/sqlc/jsx_usages.sql.go
+  7a47588eceb73ddd 1-106
+backoffice/src/components/platform-settings/embedding-config-form.tsx
+  7a47588eceb73ddd 1-473
+backend-api/internal/handler/provider.go
+  7a47588eceb73ddd 1-20
+backoffice/src/lib/format.ts
+  7a47588eceb73ddd 1-111
+backoffice/src/server/api/routers/project-commits.ts
+  7a47588eceb73ddd 1-191
+backend-api/internal/apikey/keygen.go
+  7a47588eceb73ddd 1-68
+backoffice/src/components/platform-settings/worker-status-badge.tsx
+  7a47588eceb73ddd 1-56
+backend-api/internal/handler/commits.go
+  7a47588eceb73ddd 1-581
+contracts/proto/parser/v1/parser.proto
+  7a47588eceb73ddd 1-221
+backend-worker/internal/parser/extractors/symbols_test.go
+  7a47588eceb73ddd 1-1015
+backend-worker/CHANGELOG.md
+  7a47588eceb73ddd 1-966
+backend-worker/internal/config/config_test.go
+  7a47588eceb73ddd 1-483
+backend-worker/internal/sshkey/decrypt_test.go
+  7a47588eceb73ddd 1-114
+backend-worker/testdata/parser/golden/edge-cases/crlf-line-endings.json
+  7a47588eceb73ddd 1-258
+backoffice/src/components/api-keys/key-reveal.tsx
+  7a47588eceb73ddd 1-98
+backoffice/src/components/ui/sidebar.tsx
+  7a47588eceb73ddd 1-726
+backoffice/src/components/api-keys/role-badge.tsx
+  7a47588eceb73ddd 1-16
+backend-worker/testdata/parser/golden/bash/deploy-script.json
+  7a47588eceb73ddd 1-564
+backoffice/src/components/project-detail/settings-llm.tsx
+  7a47588eceb73ddd 1-135
+concept/tickets/backend-api/00-overview.md
+  7a47588eceb73ddd 1-115
+backend-api/internal/handler/membership.go
+  7a47588eceb73ddd 1-293
+concept/tickets/backoffice/02-dashboard.md
+  7a47588eceb73ddd 1-96
+backend-api/internal/middleware/requireuser_test.go
+  7a47588eceb73ddd 1-83
+concept/tickets/backend-api/10-sse-events.md
+  7a47588eceb73ddd 1-98
+backend-api/internal/handler/worker.go
+  7a47588eceb73ddd 1-81
+backend-worker/internal/vectorstore/collection.go
+  7a47588eceb73ddd 1-24
+backoffice/components.json
+  7a47588eceb73ddd 1-23
+backoffice/src/server/api-client.ts
+  7a47588eceb73ddd 1-131
+concept/tickets/backend-worker/06-extractors-symbols-imports.md
+  7a47588eceb73ddd 1-129
+backoffice/src/components/app-shell-client.tsx
+  7a47588eceb73ddd 1-10
+Makefile
+  7a47588eceb73ddd 1-23
+backend-api/internal/storage/postgres/postgres.go
+  7a47588eceb73ddd 1-105
+backoffice/src/server/api/trpc.ts
+  7a47588eceb73ddd 1-136
+backoffice/src/components/projects/create-project-dialog.tsx
+  7a47588eceb73ddd 1-224
+concept/tickets/backend-worker/10-full-index.md
+  7a47588eceb73ddd 1-100
+datastore/postgres/migrations/000001_init.down.sql
+  7a47588eceb73ddd 1-102
+backoffice/src/trpc/query-client.ts
+  7a47588eceb73ddd 1-25
+backend-api/internal/sshkey/keygen_test.go
+  7a47588eceb73ddd 1-204
+backoffice/src/components/api-keys/api-key-table.tsx
+  7a47588eceb73ddd 1-119
+backoffice/src/components/projects/projects-table-skeleton.tsx
+  7a47588eceb73ddd 1-71
+backoffice/src/styles/globals.css
+  7a47588eceb73ddd 1-148
+backoffice/src/components/project-detail/project-detail-header.tsx
+  7a47588eceb73ddd 1-192
+backend-worker/internal/repository/job_test.go
+  7a47588eceb73ddd 1-903
+backoffice/src/app/(app)/settings/layout.tsx
+  7a47588eceb73ddd 1-55
+backoffice/src/hooks/use-project-detail.ts
+  7a47588eceb73ddd 1-43
+backend-api/internal/handler/event.go
+  7a47588eceb73ddd 1-177
+concept/01-system-overview.md
+  7a47588eceb73ddd 1-195
+backend-worker/internal/parser/hashing.go
+  7a47588eceb73ddd 1-144
+backend-api/internal/sse/subscriber_test.go
+  7a47588eceb73ddd 1-475
+concept/06-backoffice-ui.md
+  7a47588eceb73ddd 1-242
+backoffice/src/components/recent-chats-list.tsx
+  7a47588eceb73ddd 1-9
+backoffice/src/components/dashboard/alerts-zone.tsx
+  7a47588eceb73ddd 1-53
+backend-worker/internal/storage/postgres/postgres.go
+  7a47588eceb73ddd 1-95
+backoffice/src/components/projects/projects-empty-state.tsx
+  7a47588eceb73ddd 1-30
+backend-api/internal/handler/stubs_test.go
+  7a47588eceb73ddd 1-76
+backend-api/internal/handler/event_test.go
+  7a47588eceb73ddd 1-190
+backend-api/internal/apikey/service.go
+  7a47588eceb73ddd 1-291
+backend-worker/internal/app/app_test.go
+  7a47588eceb73ddd 1-36
+backend-worker/testdata/parser/edge-cases/deeply-nested.js
+  7a47588eceb73ddd 1-47
+backend-worker/internal/parser/consistency_test.go
+  7a47588eceb73ddd 1-373
+backoffice/src/components/project-detail/remove-member-dialog.tsx
+  7a47588eceb73ddd 1-61
+datastore/postgres/sqlc/keys_and_settings.sql.go
+  7a47588eceb73ddd 1-1383
+backoffice/src/components/project-detail/symbol-list.tsx
+  7a47588eceb73ddd 1-784
+backoffice/src/components/platform-settings/user-table.tsx
+  7a47588eceb73ddd 1-155
+backoffice/src/components/pagination.tsx
+  7a47588eceb73ddd 1-115
+backend-api/internal/middleware/logging_test.go
+  7a47588eceb73ddd 1-137
+backend-worker/internal/parser/normalize.go
+  7a47588eceb73ddd 1-61
+backoffice/src/components/dashboard/alert-row.tsx
+  7a47588eceb73ddd 1-98
+backend-api/internal/metrics/collector_test.go
+  7a47588eceb73ddd 1-88
+backoffice/src/server/api/routers/platform-llm.ts
+  7a47588eceb73ddd 1-176
+backend-api/internal/jobhealth/checker_test.go
+  7a47588eceb73ddd 1-180
+backend-worker/go.mod
+  7a47588eceb73ddd 1-29
+concept/05-backend-worker.md
+  7a47588eceb73ddd 1-722
+backend-worker/internal/workflow/incremental/handler.go
+  7a47588eceb73ddd 1-975
+backoffice/src/lib/provider-settings.ts
+  7a47588eceb73ddd 1-62
+backoffice/src/app/(app)/platform-settings/embedding/page.tsx
+  7a47588eceb73ddd 1-9
+datastore/postgres/migrate.go
+  7a47588eceb73ddd 1-77
+backend-api/internal/domain/errors.go
+  7a47588eceb73ddd 1-86
+backend-worker/internal/logger/context.go
+  7a47588eceb73ddd 1-21
+backend-api/internal/middleware/metrics.go
+  7a47588eceb73ddd 1-35
+backoffice/src/components/project-detail/settings-general.tsx
+  7a47588eceb73ddd 1-137
+backoffice/src/components/project-detail/code-viewer-with-preview.tsx
+  7a47588eceb73ddd 1-78
+.gitignore
+  7a47588eceb73ddd 1-37
+backoffice/src/components/ui/button.tsx
+  7a47588eceb73ddd 1-64
+backend-api/tests/integration/indexjob_test.go
+  7a47588eceb73ddd 1-707
+datastore/postgres/sqlc/models.go
+  7a47588eceb73ddd 1-380
+backoffice/src/app/(app)/project/[id]/search/page.tsx
+  7a47588eceb73ddd 1-9
+backend-api/internal/handler/admin.go
+  7a47588eceb73ddd 1-683
+backend-api/internal/auth/session.go
+  7a47588eceb73ddd 1-84
+mcpserver/src/index.ts
+  7a47588eceb73ddd 1-187
+concept/tickets/backend-worker/01-foundation.md
+  7a47588eceb73ddd 1-109
+backend-api/internal/middleware/requireuser.go
+  7a47588eceb73ddd 1-40
+backend-worker/testdata/parser/golden/jsx/app-component.json
+  7a47588eceb73ddd 1-739
+backend-worker/internal/parser/determinism_test.go
+  7a47588eceb73ddd 1-139
+backoffice/src/components/projects/delete-project-dialog.tsx
+  7a47588eceb73ddd 1-83
+backoffice/src/components/ui/dropdown-menu.tsx
+  7a47588eceb73ddd 1-257
+backoffice/src/trpc/server.ts
+  7a47588eceb73ddd 1-30
+datastore/postgres/sqlc/api_keys.sql.go
+  7a47588eceb73ddd 1-308
+backoffice/src/components/project-detail/file-diagnostics-card.tsx
+  7a47588eceb73ddd 1-110
+backend-worker/internal/queue/client.go
+  7a47588eceb73ddd 1-58
+mcpserver/README.md
+  7a47588eceb73ddd 1-92
+backoffice/prettier.config.js
+  7a47588eceb73ddd 1-4
+backend-worker/testdata/parser/golden/edge-cases/bom-utf8.json
+  7a47588eceb73ddd 1-258
+backoffice/src/components/project-detail/file-tree-directory.tsx
+  7a47588eceb73ddd 1-53
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "f38583c509917cc8b4acf4968d05b98f049310b5",
+  "prompts": {
+    "731c6b729f778366": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d2b2d-03f9-7d61-a15e-d534393d0810",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Yannick <20882309+YannickTM@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 3887,
+      "total_deletions": 147,
+      "accepted_lines": 3706,
+      "overriden_lines": 0
+    },
+    "7a47588eceb73ddd": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d2b27-9e3c-7e53-af1b-7dcc416c431b",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Yannick <20882309+YannickTM@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 137944,
+      "total_deletions": 0,
+      "accepted_lines": 137927,
+      "overriden_lines": 0
+    }
+  }
+}
