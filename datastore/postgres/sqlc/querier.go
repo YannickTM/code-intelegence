@@ -212,6 +212,7 @@ type Querier interface {
 	ListGlobalLLMProviderConfigs(ctx context.Context) ([]LlmProviderConfig, error)
 	ListJsxUsagesByFileID(ctx context.Context, fileID pgtype.UUID) ([]JsxUsage, error)
 	ListNetworkCallsByFileID(ctx context.Context, fileID pgtype.UUID) ([]NetworkCall, error)
+	ListOrphanedBuildingSnapshots(ctx context.Context) ([]ListOrphanedBuildingSnapshotsRow, error)
 	ListPersonalKeys(ctx context.Context, createdBy pgtype.UUID) ([]ApiKey, error)
 	ListProjectCommits(ctx context.Context, arg ListProjectCommitsParams) ([]Commit, error)
 	ListProjectJobs(ctx context.Context, arg ListProjectJobsParams) ([]IndexingJob, error)
@@ -221,6 +222,7 @@ type Querier interface {
 	ListProjectsBySSHKey(ctx context.Context, arg ListProjectsBySSHKeyParams) ([]Project, error)
 	ListSSHKeys(ctx context.Context, createdBy pgtype.UUID) ([]SshKey, error)
 	ListSnapshotFiles(ctx context.Context, indexSnapshotID pgtype.UUID) ([]File, error)
+	ListStaleRunningJobs(ctx context.Context, staleThreshold pgtype.Interval) ([]ListStaleRunningJobsRow, error)
 	// List child symbols (e.g. methods of a class) ordered by source position.
 	ListSymbolChildren(ctx context.Context, arg ListSymbolChildrenParams) ([]ListSymbolChildrenRow, error)
 	ListSymbolReferencesByFileID(ctx context.Context, fileID pgtype.UUID) ([]SymbolReference, error)

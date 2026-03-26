@@ -35,6 +35,11 @@ const (
 	DefaultQdrantURL = "http://qdrant:6333"
 )
 
+// Reaper defaults.
+const (
+	DefaultReaperStaleThreshold = 5 * time.Minute
+)
+
 // Workspace defaults.
 const (
 	DefaultRepoCacheDir = "/var/lib/myjungle/repos"

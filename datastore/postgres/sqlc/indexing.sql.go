@@ -692,6 +692,42 @@ func (q *Queries) ListDependenciesBySnapshotAndFile(ctx context.Context, arg Lis
 	return items, nil
 }
 
+const listOrphanedBuildingSnapshots = `-- name: ListOrphanedBuildingSnapshots :many
+SELECT s.id, s.project_id
+FROM index_snapshots s
+LEFT JOIN indexing_jobs j
+  ON j.index_snapshot_id = s.id
+  AND j.status IN ('queued', 'running')
+WHERE s.status = 'building'
+  AND s.is_active = FALSE
+  AND j.id IS NULL
+`
+
+type ListOrphanedBuildingSnapshotsRow struct {
+	ID        pgtype.UUID `json:"id"`
+	ProjectID pgtype.UUID `json:"project_id"`
+}
+
+func (q *Queries) ListOrphanedBuildingSnapshots(ctx context.Context) ([]ListOrphanedBuildingSnapshotsRow, error) {
+	rows, err := q.db.Query(ctx, listOrphanedBuildingSnapshots)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListOrphanedBuildingSnapshotsRow{}
+	for rows.Next() {
+		var i ListOrphanedBuildingSnapshotsRow
+		if err := rows.Scan(&i.ID, &i.ProjectID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listProjectJobs = `-- name: ListProjectJobs :many
 SELECT id, project_id, index_snapshot_id, job_type, status, files_processed, chunks_upserted, vectors_deleted, error_details, embedding_provider_config_id, llm_provider_config_id, worker_id, started_at, finished_at, created_at
 FROM indexing_jobs
@@ -731,6 +767,49 @@ func (q *Queries) ListProjectJobs(ctx context.Context, arg ListProjectJobsParams
 			&i.StartedAt,
 			&i.FinishedAt,
 			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listStaleRunningJobs = `-- name: ListStaleRunningJobs :many
+SELECT id, project_id, worker_id, started_at, job_type, index_snapshot_id
+FROM indexing_jobs
+WHERE status = 'running'
+  AND started_at < NOW() - $1::interval
+`
+
+type ListStaleRunningJobsRow struct {
+	ID              pgtype.UUID        `json:"id"`
+	ProjectID       pgtype.UUID        `json:"project_id"`
+	WorkerID        pgtype.Text        `json:"worker_id"`
+	StartedAt       pgtype.Timestamptz `json:"started_at"`
+	JobType         string             `json:"job_type"`
+	IndexSnapshotID pgtype.UUID        `json:"index_snapshot_id"`
+}
+
+func (q *Queries) ListStaleRunningJobs(ctx context.Context, staleThreshold pgtype.Interval) ([]ListStaleRunningJobsRow, error) {
+	rows, err := q.db.Query(ctx, listStaleRunningJobs, staleThreshold)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListStaleRunningJobsRow{}
+	for rows.Next() {
+		var i ListStaleRunningJobsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ProjectID,
+			&i.WorkerID,
+			&i.StartedAt,
+			&i.JobType,
+			&i.IndexSnapshotID,
 		); err != nil {
 			return nil, err
 		}

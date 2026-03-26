@@ -23,6 +23,7 @@ type Config struct {
 	Qdrant    QdrantConfig
 	SSH       SSHConfig
 	Workspace WorkspaceConfig
+	Reaper    ReaperConfig
 }
 
 // LogConfig controls log output format and minimum level.
@@ -75,6 +76,11 @@ type SSHConfig struct {
 	EncryptionSecret string
 }
 
+// ReaperConfig holds stuck-job reaper settings.
+type ReaperConfig struct {
+	StaleThreshold time.Duration
+}
+
 // WorkspaceConfig holds workspace / repo-cache settings.
 type WorkspaceConfig struct {
 	RepoCacheDir string
@@ -120,6 +126,9 @@ func Load() *Config {
 		},
 		Workspace: WorkspaceConfig{
 			RepoCacheDir: envOrDefault("REPO_CACHE_DIR", DefaultRepoCacheDir),
+		},
+		Reaper: ReaperConfig{
+			StaleThreshold: parseDuration(envOrDefault("REAPER_STALE_THRESHOLD", DefaultReaperStaleThreshold.String()), DefaultReaperStaleThreshold),
 		},
 	}
 
@@ -170,6 +179,9 @@ func LoadForTest() *Config {
 		Workspace: WorkspaceConfig{
 			RepoCacheDir: "/tmp/myjungle-test-repos",
 		},
+		Reaper: ReaperConfig{
+			StaleThreshold: 5 * time.Minute,
+		},
 	}
 }
 
@@ -213,6 +225,9 @@ func validate(cfg *Config) {
 	}
 	if cfg.Parser.MaxFileSize <= 0 {
 		panic(fmt.Sprintf("PARSER_MAX_FILE_SIZE must be positive, got %d", cfg.Parser.MaxFileSize))
+	}
+	if cfg.Reaper.StaleThreshold <= 0 {
+		panic(fmt.Sprintf("REAPER_STALE_THRESHOLD must be positive, got %v", cfg.Reaper.StaleThreshold))
 	}
 	validateURL(cfg.Embedding.OllamaURL, "OLLAMA_URL")
 	validateURL(cfg.Qdrant.URL, "QDRANT_URL")
@@ -272,6 +287,9 @@ func logSummary(cfg *Config) {
 		slog.String("ssh_encryption_secret", "***"),
 		slog.Group("workspace",
 			slog.String("repo_cache_dir", cfg.Workspace.RepoCacheDir),
+		),
+		slog.Group("reaper",
+			slog.Duration("stale_threshold", cfg.Reaper.StaleThreshold),
 		),
 	)
 }

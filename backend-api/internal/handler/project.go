@@ -291,6 +291,8 @@ func (h *ProjectHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 		if row.ActiveJobStartedAt.Valid {
 			startedAt = row.ActiveJobStartedAt.Time
 		}
+		// snapshotID not available in this query; orphaned snapshots
+		// are cleaned up by the worker-side reaper's sweep pass.
 		corrected := h.jobHealth.CheckAndReapIfDead(r.Context(),
 			dbconv.PgUUIDToString(row.ActiveJobID),
 			row.ActiveJobWorkerID,

@@ -254,6 +254,8 @@ func (h *UserHandler) HandleMyProjects(w http.ResponseWriter, r *http.Request) {
 		items := make([]map[string]any, 0, len(rows))
 		for _, row := range rows {
 			m := allProjectHealthRowToMap(row)
+			// snapshotID not available in this query; orphaned snapshots
+			// are cleaned up by the worker-side reaper's sweep pass.
 			if row.ActiveJobID.Valid && row.ActiveJobStatus == "running" {
 				startedAt := time.Time{}
 				if row.ActiveJobStartedAt.Valid {
@@ -287,6 +289,8 @@ func (h *UserHandler) HandleMyProjects(w http.ResponseWriter, r *http.Request) {
 	items := make([]map[string]any, 0, len(rows))
 	for _, row := range rows {
 		m := projectHealthRowToMap(row)
+		// snapshotID not available in this query; orphaned snapshots
+		// are cleaned up by the worker-side reaper's sweep pass.
 		if row.ActiveJobID.Valid && row.ActiveJobStatus == "running" {
 			startedAt := time.Time{}
 			if row.ActiveJobStartedAt.Valid {

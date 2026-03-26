@@ -1,7 +1,7 @@
 # 14 — Stuck-Job Reaper Core & Worker Startup Sweep
 
 ## Status
-Todo
+Done
 
 ## Goal
 Provide the shared reaper logic that detects orphaned `running` jobs (whose worker has crashed) and transitions them to `failed`, cleans up partial snapshots, and publishes SSE events. Integrate into the worker as a one-shot startup sweep so a restarted worker instantly cleans up after its own crash.

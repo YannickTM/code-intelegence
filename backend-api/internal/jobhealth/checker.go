@@ -24,14 +24,7 @@ type workerStatus struct {
 }
 
 // reaperErrorDetails is the JSONB error payload written when a job is reaped.
-var reaperErrorDetails = func() []byte {
-	b, _ := json.Marshal([]map[string]string{{
-		"category": "worker_crash",
-		"message":  "Worker process became unreachable during indexing. The job was automatically marked as failed.",
-		"step":     "reaper",
-	}})
-	return b
-}()
+var reaperErrorDetails = []byte(`[{"category":"worker_crash","message":"Worker process became unreachable during indexing. The job was automatically marked as failed.","step":"reaper"}]`)
 
 // Checker verifies worker liveness on running jobs and reaps dead ones.
 // Nil-safe: all methods are no-ops on a nil *Checker.
@@ -64,8 +57,8 @@ func NewChecker(
 //
 // Fast paths (no Redis call):
 //   - currentStatus != "running"
-//   - workerID is empty (legacy job without worker tracking)
 //   - job started less than staleThreshold ago
+//   - workerID is empty AND job is not stale (legacy job without worker tracking)
 //
 // This is best-effort: errors are logged but never propagated to the caller.
 func (c *Checker) CheckAndReapIfDead(
@@ -83,11 +76,13 @@ func (c *Checker) CheckAndReapIfDead(
 	if currentStatus != "running" {
 		return currentStatus
 	}
-	if workerID == "" {
-		return currentStatus
-	}
 	if !startedAt.IsZero() && time.Since(startedAt) < c.staleThreshold {
 		return currentStatus
+	}
+	if workerID == "" {
+		// Legacy job without worker tracking that has exceeded the stale
+		// threshold. No heartbeat to check — treat as dead.
+		return c.reap(ctx, jobID, projectID, snapshotID)
 	}
 
 	// Slow path: check worker heartbeat in Redis.
@@ -103,7 +98,15 @@ func (c *Checker) CheckAndReapIfDead(
 	// Key exists — check if worker is still working on this job.
 	if raw != "" {
 		var ws workerStatus
-		if err := json.Unmarshal([]byte(raw), &ws); err == nil && ws.CurrentJobID == jobID {
+		if err := json.Unmarshal([]byte(raw), &ws); err != nil {
+			// Corrupted payload — assume alive to avoid false positives.
+			slog.WarnContext(ctx, "jobhealth: malformed heartbeat payload, skipping reap",
+				slog.String("job_id", jobID),
+				slog.String("worker_id", workerID),
+				slog.Any("error", err))
+			return currentStatus
+		}
+		if ws.CurrentJobID == jobID {
 			return "running" // worker alive and working on this job
 		}
 		// Worker moved on to another job — this job is orphaned.

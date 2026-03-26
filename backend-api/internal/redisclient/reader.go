@@ -31,7 +31,11 @@ func NewReader(redisURL string, poolSize int) (*Reader, error) {
 func (r *Reader) ScanKeys(ctx context.Context, pattern string) ([]string, error) {
 	seen := make(map[string]struct{})
 	var cursor uint64
-	for {
+	const maxScanIterations = 1000
+	for i := 0; i < maxScanIterations; i++ {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
 		keys, next, err := r.rdb.Scan(ctx, cursor, pattern, 100).Result()
 		if err != nil {
 			return nil, err
