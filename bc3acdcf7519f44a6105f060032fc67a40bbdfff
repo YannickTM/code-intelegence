@@ -1,0 +1,25 @@
+backend-worker/internal/parser/extractors/imports_test.go
+  69b8de3e3abe0e78 518-554,645-704
+backend-worker/internal/parser/extractors/imports.go
+  69b8de3e3abe0e78 15-21,50-63,82-87,212-223,301-304,562-578
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "bc3acdcf7519f44a6105f060032fc67a40bbdfff",
+  "prompts": {
+    "69b8de3e3abe0e78": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4dc20a3c-2381-4328-ad0d-8c0837e879c2",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Yannick <20882309+YannickTM@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 157,
+      "total_deletions": 6,
+      "accepted_lines": 157,
+      "overriden_lines": 0
+    }
+  }
+}
