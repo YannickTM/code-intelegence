@@ -12,12 +12,13 @@ import (
 
 // importContext carries state through the recursive AST walk for import extraction.
 type importContext struct {
-	content    []byte
-	filePath   string
-	langID     string
-	langConfig *registry.LanguageConfig
-	imports    []parser.Import
-	seen       map[string]bool // dedup by source specifier (ImportName)
+	content       []byte
+	filePath      string
+	langID        string
+	langConfig    *registry.LanguageConfig
+	imports       []parser.Import
+	seen          map[string]bool // dedup by source specifier (ImportName)
+	rustLocalMods map[string]bool // Rust: mod names declared in this file (for bare use path classification)
 }
 
 // ExtractImports walks the tree-sitter AST and returns all import declarations found.
@@ -46,6 +47,20 @@ func ExtractImports(root *sitter.Node, content []byte, filePath string, langID s
 		seen:       make(map[string]bool),
 	}
 
+	// Rust: pre-scan top-level mod declarations (mod foo;) so bare use paths
+	// like `use foo::Bar` can be classified as INTERNAL when foo is a local module.
+	if langID == "rust" {
+		ctx.rustLocalMods = make(map[string]bool)
+		for i := 0; i < int(root.NamedChildCount()); i++ {
+			child := root.NamedChild(i)
+			if child.Type() == "mod_item" && findChildByType(child, "declaration_list") == nil {
+				if nameNode := findChildByFieldName(child, "name"); nameNode != nil {
+					ctx.rustLocalMods[nodeText(nameNode, content)] = true
+				}
+			}
+		}
+	}
+
 	ctx.walkNode(root, 0)
 	return ctx.imports
 }
@@ -62,6 +77,12 @@ func (ctx *importContext) walkNode(node *sitter.Node, depth int) {
 	if jsLikeLanguages[ctx.langID] && nodeType == "export_statement" {
 		ctx.extractJSReexport(node)
 		// Don't return — still recurse children for nested call_expressions.
+	}
+
+	// Rust: handle mod declarations (mod foo;) as internal imports.
+	if ctx.langID == "rust" && nodeType == "mod_item" {
+		ctx.extractRustModImport(node)
+		return
 	}
 
 	// Check if this node type matches any ImportNodeTypes.
@@ -188,6 +209,18 @@ func (ctx *importContext) classifyImport(source string, forceInternal bool) stri
 		}
 	}
 
+	// Rust: bare use paths whose first segment matches a local mod declaration
+	// are internal (e.g., `use error::Foo` when `mod error;` is in the same file).
+	if ctx.langID == "rust" && ctx.rustLocalMods != nil {
+		firstSeg := source
+		if idx := strings.Index(source, "::"); idx >= 0 {
+			firstSeg = source[:idx]
+		}
+		if ctx.rustLocalMods[firstSeg] {
+			return "INTERNAL"
+		}
+	}
+
 	return "EXTERNAL"
 }
 
@@ -265,6 +298,10 @@ func (ctx *importContext) resolvePath(source, importType string) string {
 			modPath = strings.ReplaceAll(modPath, "::", "/")
 			modDir := rustModuleDir(ctx.filePath)
 			return path.Join(modDir, modPath)
+		default:
+			// Bare path (e.g., "error" from mod declaration or "error::Foo" from use).
+			modPath := strings.ReplaceAll(source, "::", "/")
+			return path.Join(rustModuleDir(ctx.filePath), modPath)
 		}
 	}
 
@@ -520,6 +557,23 @@ func (ctx *importContext) extractRustImport(node *sitter.Node) {
 	}
 
 	ctx.addImport(text, false)
+}
+
+// extractRustModImport handles mod declarations (mod foo;) as internal file imports.
+// Inline mod blocks (mod foo { ... }) are skipped since they don't reference another file.
+func (ctx *importContext) extractRustModImport(node *sitter.Node) {
+	if findChildByType(node, "declaration_list") != nil {
+		return
+	}
+	nameNode := findChildByFieldName(node, "name")
+	if nameNode == nil {
+		return
+	}
+	modName := nodeText(nameNode, ctx.content)
+	if modName == "" {
+		return
+	}
+	ctx.addImport(modName, true)
 }
 
 // ---------------------------------------------------------------------------
