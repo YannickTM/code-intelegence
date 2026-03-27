@@ -29,14 +29,15 @@ const (
 
 // statusPayload matches contracts/redis/worker-status.v1.schema.json.
 type statusPayload struct {
-	WorkerID           string   `json:"worker_id"`
-	Status             string   `json:"status"`
-	StartedAt          string   `json:"started_at"`
-	LastHeartbeatAt    string   `json:"last_heartbeat_at"`
-	Hostname           string   `json:"hostname,omitempty"`
-	SupportedWorkflows []string `json:"supported_workflows"`
-	CurrentJobID       string   `json:"current_job_id,omitempty"`
-	CurrentProjectID   string   `json:"current_project_id,omitempty"`
+	WorkerID           string            `json:"worker_id"`
+	Status             string            `json:"status"`
+	StartedAt          string            `json:"started_at"`
+	LastHeartbeatAt    string            `json:"last_heartbeat_at"`
+	Hostname           string            `json:"hostname,omitempty"`
+	SupportedWorkflows []string          `json:"supported_workflows"`
+	CurrentJobID       string            `json:"current_job_id,omitempty"`
+	CurrentProjectID   string            `json:"current_project_id,omitempty"`
+	ActiveJobs         map[string]string `json:"active_jobs,omitempty"`
 }
 
 // Registry manages ephemeral worker status in Redis.
@@ -47,10 +48,9 @@ type Registry struct {
 	startedAt time.Time
 	workflows []string
 
-	mu             sync.Mutex
-	status         string
-	currentJobID   string
-	currentProjID  string
+	mu         sync.Mutex
+	status     string
+	activeJobs map[string]string // jobID → projectID
 
 	stopCh   chan struct{}
 	done     chan struct{}
@@ -73,41 +73,46 @@ func New(redisURL, workerID string, workflows []string) (*Registry, error) {
 	hostname, _ := os.Hostname()
 
 	return &Registry{
-		client:    redis.NewClient(opt),
-		workerID:  workerID,
-		hostname:  hostname,
-		startedAt: time.Now().UTC(),
-		workflows: workflows,
-		status:    StatusStarting,
-		stopCh:    make(chan struct{}),
-		done:      make(chan struct{}),
+		client:     redis.NewClient(opt),
+		workerID:   workerID,
+		hostname:   hostname,
+		startedAt:  time.Now().UTC(),
+		workflows:  workflows,
+		status:     StatusStarting,
+		activeJobs: make(map[string]string),
+		stopCh:     make(chan struct{}),
+		done:       make(chan struct{}),
 	}, nil
 }
 
-// SetStatus updates the worker status (thread-safe).
+// SetStatus updates the worker lifecycle status (thread-safe).
+// All active jobs are cleared. Use only for lifecycle transitions
+// (starting, idle, draining), not for individual job completions.
 func (r *Registry) SetStatus(status string) {
 	r.mu.Lock()
 	r.status = status
-	r.currentJobID = ""
-	r.currentProjID = ""
+	r.activeJobs = make(map[string]string)
 	r.mu.Unlock()
 }
 
-// SetBusy marks the worker as busy with the given job context.
+// SetBusy marks the worker as busy with the given job.
+// Multiple concurrent jobs are tracked; the worker stays busy
+// as long as at least one job is active.
 func (r *Registry) SetBusy(jobID, projectID string) {
 	r.mu.Lock()
+	r.activeJobs[jobID] = projectID
 	r.status = StatusBusy
-	r.currentJobID = jobID
-	r.currentProjID = projectID
 	r.mu.Unlock()
 }
 
-// SetIdle marks the worker as idle and clears current job fields.
-func (r *Registry) SetIdle() {
+// ClearJob removes a single job from the active set.
+// If no jobs remain, the worker transitions to idle.
+func (r *Registry) ClearJob(jobID string) {
 	r.mu.Lock()
-	r.status = StatusIdle
-	r.currentJobID = ""
-	r.currentProjID = ""
+	delete(r.activeJobs, jobID)
+	if len(r.activeJobs) == 0 && r.status == StatusBusy {
+		r.status = StatusIdle
+	}
 	r.mu.Unlock()
 }
 
@@ -152,8 +157,7 @@ func (r *Registry) Close() {
 
 	r.mu.Lock()
 	r.status = StatusDraining
-	r.currentJobID = ""
-	r.currentProjID = ""
+	r.activeJobs = make(map[string]string)
 	r.mu.Unlock()
 
 	// Publish final draining status.
@@ -205,8 +209,21 @@ func (r *Registry) publish(ctx context.Context) {
 		LastHeartbeatAt:    time.Now().UTC().Format(time.RFC3339),
 		Hostname:           r.hostname,
 		SupportedWorkflows: r.workflows,
-		CurrentJobID:       r.currentJobID,
-		CurrentProjectID:   r.currentProjID,
+	}
+	// Backward-compatible: set current_job_id to any one active job.
+	// Also publish the full active_jobs map for concurrent-aware consumers.
+	if len(r.activeJobs) > 0 {
+		for jobID, projID := range r.activeJobs {
+			payload.CurrentJobID = jobID
+			payload.CurrentProjectID = projID
+			break // pick one for backward compat
+		}
+		// Copy the map so we don't hold the lock during marshal.
+		active := make(map[string]string, len(r.activeJobs))
+		for k, v := range r.activeJobs {
+			active[k] = v
+		}
+		payload.ActiveJobs = active
 	}
 	r.mu.Unlock()
 

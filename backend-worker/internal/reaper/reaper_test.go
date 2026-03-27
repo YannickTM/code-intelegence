@@ -77,7 +77,11 @@ func setup(t *testing.T) (*miniredis.Miniredis, *redis.Client) {
 // setHeartbeat writes a worker heartbeat key in miniredis.
 func setHeartbeat(t *testing.T, mr *miniredis.Miniredis, workerID, currentJobID string) {
 	t.Helper()
-	data, _ := json.Marshal(workerStatus{CurrentJobID: currentJobID})
+	ws := workerStatus{CurrentJobID: currentJobID}
+	if currentJobID != "" {
+		ws.ActiveJobs = map[string]string{currentJobID: "proj-placeholder"}
+	}
+	data, _ := json.Marshal(ws)
 	mr.Set("worker:status:"+workerID, string(data))
 	mr.SetTTL("worker:status:"+workerID, 30*time.Second)
 }

@@ -85,7 +85,7 @@ func wrapHandler(name string, h workflow.Handler, reg *registry.Registry) func(c
 
 		if reg != nil {
 			reg.SetBusy(task.JobID, task.ProjectID)
-			defer reg.SetIdle()
+			defer reg.ClearJob(task.JobID)
 			task.WorkerID = reg.WorkerID()
 		}
 

@@ -178,6 +178,10 @@ func (p *Pipeline) processFiles(ctx context.Context, input PipelineInput) error 
 
 		// Update file progress (artifacts written, chunks pending embed).
 		if (i+1)%500 == 0 || i+1 == len(input.ParsedFiles) {
+			log.Info("indexing: artifact progress",
+				slog.Int("files_written", i+1),
+				slog.Int("total_files", len(input.ParsedFiles)),
+				slog.Int("chunks_collected", len(allChunks)))
 			if err := p.queries.SetIndexingJobProgress(ctx, db.SetIndexingJobProgressParams{
 				ID:             input.JobID,
 				FilesProcessed: int32(i + 1),

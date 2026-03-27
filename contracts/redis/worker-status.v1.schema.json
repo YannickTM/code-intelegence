@@ -71,6 +71,17 @@
         ]
       }
     },
+    "active_jobs": {
+      "type": "object",
+      "description": "Map of job_id → project_id for all concurrently running jobs. Supersedes current_job_id when the worker processes multiple tasks in parallel.",
+      "propertyNames": {
+        "format": "uuid"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "format": "uuid"
+      }
+    },
     "drain_reason": {
       "type": "string",
       "minLength": 1,
