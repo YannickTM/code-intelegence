@@ -60,7 +60,11 @@ func newTestChecker(t *testing.T, mr *miniredis.Miniredis, mq *mockQuerier) *Che
 
 func setWorkerStatus(t *testing.T, mr *miniredis.Miniredis, workerID, jobID string) {
 	t.Helper()
-	b, _ := json.Marshal(workerStatus{CurrentJobID: jobID})
+	ws := workerStatus{CurrentJobID: jobID}
+	if jobID != "" {
+		ws.ActiveJobs = map[string]string{jobID: "proj-placeholder"}
+	}
+	b, _ := json.Marshal(ws)
 	mr.Set("worker:status:"+workerID, string(b))
 }
 

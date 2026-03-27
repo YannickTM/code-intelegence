@@ -19,7 +19,19 @@ import (
 
 // workerStatus mirrors the heartbeat payload stored at worker:status:{id}.
 type workerStatus struct {
-	CurrentJobID string `json:"current_job_id"`
+	CurrentJobID string            `json:"current_job_id"`
+	ActiveJobs   map[string]string `json:"active_jobs"`
+}
+
+// isActiveJob returns true if jobID is tracked in the heartbeat, checking
+// the active_jobs map first (concurrent-aware) and falling back to
+// current_job_id for backward compatibility with older workers.
+func (ws *workerStatus) isActiveJob(jobID string) bool {
+	if len(ws.ActiveJobs) > 0 {
+		_, ok := ws.ActiveJobs[jobID]
+		return ok
+	}
+	return ws.CurrentJobID == jobID
 }
 
 // reaperErrorDetails is the JSONB error payload written when a job is reaped.
@@ -150,7 +162,7 @@ func (r *Reaper) isWorkerAlive(ctx context.Context, workerID string, jobID pgtyp
 	if err := json.Unmarshal([]byte(raw), &ws); err != nil {
 		return false
 	}
-	return ws.CurrentJobID == fmtUUID(jobID)
+	return ws.isActiveJob(fmtUUID(jobID))
 }
 
 // scanForJobOwner scans all worker:status:* keys for one reporting jobID.
@@ -179,7 +191,7 @@ func (r *Reaper) scanForJobOwner(ctx context.Context, jobID pgtype.UUID) bool {
 			if err := json.Unmarshal([]byte(raw), &ws); err != nil {
 				continue
 			}
-			if ws.CurrentJobID == jobStr {
+			if ws.isActiveJob(jobStr) {
 				return true
 			}
 		}

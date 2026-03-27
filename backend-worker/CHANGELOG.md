@@ -25,6 +25,20 @@ All notable changes to the backend-worker service will be documented in this fil
 - **SQL queries** (`datastore/postgres/queries/indexing.sql`):
   `ListStaleRunningJobs` and `ListOrphanedBuildingSnapshots` added.
 
+### Fixed (Task 14 — Concurrent Job Heartbeat)
+
+- **Registry concurrency bug**: `SetBusy`/`SetIdle` tracked only one job ID.
+  With `concurrency > 1`, finishing any one job cleared the heartbeat for ALL
+  concurrent jobs, causing the API's lazy checker to falsely reap live jobs.
+  Registry now tracks an `activeJobs` map; `ClearJob(jobID)` removes a single
+  job and only transitions to idle when no jobs remain.
+- **Heartbeat `active_jobs` field**: New `active_jobs` map in the Redis heartbeat
+  payload lists all concurrently running jobs. Both the worker reaper and the
+  API's `jobhealth.Checker` check `active_jobs` first (concurrent-safe), falling
+  back to `current_job_id` for backward compatibility with older workers.
+- **Schema update**: `contracts/redis/worker-status.v1.schema.json` now includes
+  the `active_jobs` property.
+
 ### Added (Task 29 — Cross-Language Import Path Resolution)
 
 - **Python relative import resolution** (`extractors/imports.go`): `resolvePath()`
