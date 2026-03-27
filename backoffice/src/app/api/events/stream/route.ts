@@ -13,8 +13,12 @@ export async function GET(request: Request) {
   try {
     backendRes = await fetch(backendUrl, {
       headers: { Cookie: request.headers.get("cookie") ?? "" },
+      signal: request.signal,
     });
-  } catch {
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
+      return new Response(null, { status: 499 });
+    }
     return new Response("Backend unavailable", { status: 502 });
   }
 
