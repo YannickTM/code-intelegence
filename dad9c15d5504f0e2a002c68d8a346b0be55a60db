@@ -1,0 +1,39 @@
+backend-worker/CHANGELOG.md
+  c939f28de130ed80 7-27
+backend-worker/internal/config/config_test.go
+  c939f28de130ed80 30,103-107,128,180-182,285-287,479-481
+backend-worker/internal/reaper/reaper.go
+  c939f28de130ed80 1-210
+backend-worker/internal/app/app.go
+  c939f28de130ed80 13-14,19,22,48-51,101-123,160-169,184-192,225-230
+datastore/postgres/queries/indexing.sql
+  c939f28de130ed80 215-230
+backend-worker/internal/config/config.go
+  c939f28de130ed80 26,79-83,130-132,182-184,229-231,291-293
+concept/tickets/backend-worker/14-job-reaper.md
+  c939f28de130ed80 4
+backend-worker/internal/reaper/reaper_test.go
+  c939f28de130ed80 1-371
+backend-worker/internal/config/defaults.go
+  c939f28de130ed80 38-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "dad9c15d5504f0e2a002c68d8a346b0be55a60db",
+  "prompts": {
+    "c939f28de130ed80": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "61faf0f8-794c-4ab4-af46-4a6f2db19b6f",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Yannick <20882309+YannickTM@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 723,
+      "total_deletions": 17,
+      "accepted_lines": 714,
+      "overriden_lines": 0
+    }
+  }
+}
