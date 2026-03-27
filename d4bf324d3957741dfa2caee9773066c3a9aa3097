@@ -1,0 +1,49 @@
+backend-api/internal/jobhealth/checker.go
+  c939f28de130ed80 27,61,82-85,101-109
+backend-worker/internal/app/app.go
+  c939f28de130ed80 12,14,20,23,49-52,102-124,137-140,165-174,189-199,232-237
+concept/tickets/backend-worker/14-job-reaper.md
+  c939f28de130ed80 4
+backend-worker/internal/config/config.go
+  c939f28de130ed80 26,79-83,130-132,182-184,229-231,291-293
+backend-api/internal/redisclient/reader.go
+  c939f28de130ed80 34-38
+backend-worker/internal/reaper/reaper_test.go
+  c939f28de130ed80 1-361,365-418
+backend-worker/internal/reaper/reaper.go
+  c939f28de130ed80 1-202
+backend-worker/internal/config/config_test.go
+  c939f28de130ed80 30,103-107,128,180-182,285-287,479-481
+datastore/postgres/queries/indexing.sql
+  c939f28de130ed80 215-230
+backend-worker/internal/config/defaults.go
+  c939f28de130ed80 38-42
+backend-api/internal/jobhealth/checker_test.go
+  c939f28de130ed80 86,89-91,97-104,185-195
+backend-api/internal/handler/user.go
+  c939f28de130ed80 257-258,292-293
+backend-api/internal/handler/project.go
+  c939f28de130ed80 294-295
+backend-worker/CHANGELOG.md
+  c939f28de130ed80 7-27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "d4bf324d3957741dfa2caee9773066c3a9aa3097",
+  "prompts": {
+    "c939f28de130ed80": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "61faf0f8-794c-4ab4-af46-4a6f2db19b6f",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Yannick <20882309+YannickTM@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 849,
+      "total_deletions": 60,
+      "accepted_lines": 809,
+      "overriden_lines": 0
+    }
+  }
+}
