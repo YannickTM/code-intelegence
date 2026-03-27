@@ -9,13 +9,18 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
+
+	"github.com/redis/go-redis/v9"
 
 	"myjungle/backend-worker/internal/artifact"
 	"myjungle/backend-worker/internal/config"
 	"myjungle/backend-worker/internal/gitclient"
 	"myjungle/backend-worker/internal/indexing"
+	"myjungle/backend-worker/internal/notify"
 	"myjungle/backend-worker/internal/parser/engine"
 	"myjungle/backend-worker/internal/queue"
+	"myjungle/backend-worker/internal/reaper"
 	"myjungle/backend-worker/internal/registry"
 	"myjungle/backend-worker/internal/repository"
 	"myjungle/backend-worker/internal/sshenv"
@@ -41,6 +46,10 @@ type App struct {
 	Dispatcher *workflow.Dispatcher
 	Repo       *repository.JobRepository
 	Parser     *engine.Engine
+	Reaper     *reaper.Reaper
+
+	reaperRedis *redis.Client
+	reaperPub   *notify.EventPublisher
 }
 
 // New creates and wires all dependencies.
@@ -90,6 +99,29 @@ func New(cfg *config.Config) (*App, error) {
 		return nil, fmt.Errorf("repository: %w", err)
 	}
 
+	// Reaper dependencies: separate Redis client and event publisher.
+	reaperRedisOpts, err := redis.ParseURL(cfg.Redis.URL)
+	if err != nil {
+		reg.Close()
+		queueClient.Server.Shutdown()
+		db.Close()
+		return nil, fmt.Errorf("reaper redis: %w", err)
+	}
+	reaperRedis := redis.NewClient(reaperRedisOpts)
+
+	reaperPub, pubErr := notify.NewEventPublisher(cfg.Redis.URL)
+	if pubErr != nil {
+		slog.Warn("reaper: event publisher unavailable, SSE notifications disabled",
+			slog.Any("error", pubErr))
+	}
+
+	rpr := reaper.New(
+		reaper.Config{StaleThreshold: cfg.Reaper.StaleThreshold},
+		db.Queries,
+		reaperRedis,
+		reaperPub,
+	)
+
 	// Workspace dependencies.
 	gitClient := gitclient.New(gitclient.ExecRunner{})
 	scanner := sshenv.ExecKeyscanner{}
@@ -102,6 +134,10 @@ func New(cfg *config.Config) (*App, error) {
 		MaxFileSize:    cfg.Parser.MaxFileSize,
 	})
 	if err != nil {
+		reaperRedis.Close()
+		if reaperPub != nil {
+			reaperPub.Close()
+		}
 		reg.Close()
 		queueClient.Server.Shutdown()
 		db.Close()
@@ -126,13 +162,16 @@ func New(cfg *config.Config) (*App, error) {
 	d.Register("incremental-index", incrementalHandler)
 
 	return &App{
-		Config:     cfg,
-		DB:         db,
-		Queue:      queueClient,
-		Registry:   reg,
-		Dispatcher: d,
-		Repo:       repo,
-		Parser:     parserEngine,
+		Config:      cfg,
+		DB:          db,
+		Queue:       queueClient,
+		Registry:    reg,
+		Dispatcher:  d,
+		Repo:        repo,
+		Parser:      parserEngine,
+		Reaper:      rpr,
+		reaperRedis: reaperRedis,
+		reaperPub:   reaperPub,
 	}, nil
 }
 
@@ -146,6 +185,17 @@ func (a *App) Run() error {
 
 	a.Registry.SetStatus(registry.StatusStarting)
 	a.Registry.StartHeartbeat(ctx)
+
+	// Startup reap: clean up any jobs orphaned by a previous crash.
+	if a.Reaper != nil {
+		reapCtx, reapCancel := context.WithTimeout(ctx, 30*time.Second)
+		defer reapCancel()
+		if n, err := a.Reaper.RunOnce(reapCtx); err != nil {
+			slog.Warn("startup reap failed", slog.Any("error", err))
+		} else if n > 0 {
+			slog.Info("startup reap complete", slog.Int("reaped_jobs", n))
+		}
+	}
 
 	mux := queue.BuildServeMux(a.Dispatcher.Handlers(), a.Registry)
 
@@ -178,6 +228,12 @@ func (a *App) Close() {
 	}
 	if a.Parser != nil {
 		a.Parser.Close()
+	}
+	if a.reaperPub != nil {
+		a.reaperPub.Close()
+	}
+	if a.reaperRedis != nil {
+		a.reaperRedis.Close()
 	}
 	if a.DB != nil {
 		a.DB.Close()

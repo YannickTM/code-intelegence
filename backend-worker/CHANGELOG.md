@@ -4,6 +4,27 @@ All notable changes to the backend-worker service will be documented in this fil
 
 ## [Unreleased]
 
+### Added (Task 14 — Stuck-Job Reaper)
+
+- **Reaper core** (`internal/reaper/reaper.go`): New `Reaper` component with
+  `RunOnce()` method that scans for stuck `running` jobs whose worker heartbeat
+  has expired, transitions them to `failed` with `worker_crash` error category,
+  and publishes `job:failed` SSE events. All operations are idempotent.
+- **Orphaned snapshot cleanup**: Building snapshots with no associated running job
+  are automatically deleted during the reap cycle (cascading to files, symbols,
+  chunks, and dependencies).
+- **Legacy job support**: Jobs without a `worker_id` (pre-tracking) are handled via
+  Redis SCAN of all `worker:status:*` keys.
+- **`IsWorkerAlive()` exported**: Standalone helper for single-job liveness checks,
+  available for the API lazy reaper (`backend-api/17-lazy-job-reaper`).
+- **Startup sweep** (`internal/app/app.go`): Worker runs a synchronous
+  `Reaper.RunOnce()` on boot before accepting jobs, providing instant recovery
+  after a crash.
+- **Configuration**: `REAPER_STALE_THRESHOLD` env var (duration, default `5m`)
+  controls the minimum age before a running job is considered stale.
+- **SQL queries** (`datastore/postgres/queries/indexing.sql`):
+  `ListStaleRunningJobs` and `ListOrphanedBuildingSnapshots` added.
+
 ### Added (Task 29 — Cross-Language Import Path Resolution)
 
 - **Python relative import resolution** (`extractors/imports.go`): `resolvePath()`

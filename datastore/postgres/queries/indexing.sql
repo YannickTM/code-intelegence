@@ -212,3 +212,19 @@ DELETE FROM index_snapshots
 WHERE id = $1
   AND status = 'building'
   AND is_active = FALSE;
+
+-- name: ListStaleRunningJobs :many
+SELECT id, project_id, worker_id, started_at, job_type, index_snapshot_id
+FROM indexing_jobs
+WHERE status = 'running'
+  AND started_at < NOW() - @stale_threshold::interval;
+
+-- name: ListOrphanedBuildingSnapshots :many
+SELECT s.id, s.project_id
+FROM index_snapshots s
+LEFT JOIN indexing_jobs j
+  ON j.index_snapshot_id = s.id
+  AND j.status IN ('queued', 'running')
+WHERE s.status = 'building'
+  AND s.is_active = FALSE
+  AND j.id IS NULL;

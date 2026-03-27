@@ -83,12 +83,25 @@ func TestNonRunningStatus(t *testing.T) {
 	}
 }
 
-func TestEmptyWorkerID(t *testing.T) {
+func TestEmptyWorkerID_FreshJob(t *testing.T) {
 	mr := miniredis.RunT(t)
 	c := newTestChecker(t, mr, &mockQuerier{})
-	got := c.CheckAndReapIfDead(context.Background(), testJobID, "", "running", time.Time{}, testProjectID, "")
+	// Fresh job with no worker ID → skip (not stale yet).
+	started := time.Now().Add(-1 * time.Minute)
+	got := c.CheckAndReapIfDead(context.Background(), testJobID, "", "running", started, testProjectID, "")
 	if got != "running" {
 		t.Errorf("got %q, want %q", got, "running")
+	}
+}
+
+func TestEmptyWorkerID_StaleJob(t *testing.T) {
+	mr := miniredis.RunT(t)
+	mq := &mockQuerier{}
+	c := newTestChecker(t, mr, mq)
+	// Stale legacy job with no worker ID → reap.
+	got := c.CheckAndReapIfDead(context.Background(), testJobID, "", "running", time.Time{}, testProjectID, "")
+	if got != "failed" {
+		t.Errorf("got %q, want %q", got, "failed")
 	}
 }
 
@@ -166,6 +179,17 @@ func TestDBErrorOnFailStaleJob(t *testing.T) {
 	got := c.CheckAndReapIfDead(context.Background(), testJobID, testWorkerID, "running", time.Time{}, testProjectID, "")
 	if got != "running" {
 		t.Errorf("got %q, want %q (graceful degradation on DB error)", got, "running")
+	}
+}
+
+func TestMalformedHeartbeat(t *testing.T) {
+	mr := miniredis.RunT(t)
+	// Write corrupted JSON payload.
+	mr.Set("worker:status:"+testWorkerID, "not-valid-json{{{")
+	c := newTestChecker(t, mr, &mockQuerier{})
+	got := c.CheckAndReapIfDead(context.Background(), testJobID, testWorkerID, "running", time.Time{}, testProjectID, "")
+	if got != "running" {
+		t.Errorf("got %q, want %q (assume alive on malformed payload)", got, "running")
 	}
 }
 

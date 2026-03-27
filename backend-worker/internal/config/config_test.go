@@ -27,6 +27,7 @@ func clearOptionalEnvs(t *testing.T) {
 		"OLLAMA_URL", "OLLAMA_MODEL",
 		"QDRANT_URL",
 		"REPO_CACHE_DIR",
+		"REAPER_STALE_THRESHOLD",
 	} {
 		t.Setenv(key, "")
 	}
@@ -99,6 +100,11 @@ func TestLoad_Defaults(t *testing.T) {
 	if cfg.Workspace.RepoCacheDir != DefaultRepoCacheDir {
 		t.Errorf("Workspace.RepoCacheDir = %q, want %q", cfg.Workspace.RepoCacheDir, DefaultRepoCacheDir)
 	}
+
+	// Reaper defaults.
+	if cfg.Reaper.StaleThreshold != DefaultReaperStaleThreshold {
+		t.Errorf("Reaper.StaleThreshold = %v, want %v", cfg.Reaper.StaleThreshold, DefaultReaperStaleThreshold)
+	}
 }
 
 func TestLoad_CustomValues(t *testing.T) {
@@ -119,6 +125,7 @@ func TestLoad_CustomValues(t *testing.T) {
 	t.Setenv("OLLAMA_MODEL", "custom-model")
 	t.Setenv("QDRANT_URL", "http://localhost:6333")
 	t.Setenv("REPO_CACHE_DIR", "/custom/repos")
+	t.Setenv("REAPER_STALE_THRESHOLD", "10m")
 
 	cfg := Load()
 
@@ -169,6 +176,9 @@ func TestLoad_CustomValues(t *testing.T) {
 	}
 	if cfg.Workspace.RepoCacheDir != "/custom/repos" {
 		t.Errorf("Workspace.RepoCacheDir = %q, want %q", cfg.Workspace.RepoCacheDir, "/custom/repos")
+	}
+	if cfg.Reaper.StaleThreshold != 10*time.Minute {
+		t.Errorf("Reaper.StaleThreshold = %v, want 10m", cfg.Reaper.StaleThreshold)
 	}
 }
 
@@ -271,6 +281,9 @@ func TestLoadForTest(t *testing.T) {
 	}
 	if cfg.Queue.Concurrency < 1 {
 		t.Errorf("LoadForTest Queue.Concurrency = %d, want positive", cfg.Queue.Concurrency)
+	}
+	if cfg.Reaper.StaleThreshold != 5*time.Minute {
+		t.Errorf("LoadForTest Reaper.StaleThreshold = %v, want 5m", cfg.Reaper.StaleThreshold)
 	}
 }
 
@@ -462,6 +475,9 @@ func TestLogSummary_NoSecrets(t *testing.T) {
 		},
 		Workspace: WorkspaceConfig{
 			RepoCacheDir: "/var/lib/myjungle/repos",
+		},
+		Reaper: ReaperConfig{
+			StaleThreshold: 5 * time.Minute,
 		},
 	}
 
