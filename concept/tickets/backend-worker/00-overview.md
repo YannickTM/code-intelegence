@@ -17,10 +17,11 @@ Define the architectural overview of `backend-worker`, the asynchronous workflow
 
 - Dequeues jobs from Redis/asynq
 - Loads project-scoped execution context from PostgreSQL
-- Runs workflow handlers (full-index, incremental-index, commits)
+- Runs workflow handlers (full-index, incremental-index, commits, describe-full, describe-incremental, describe-file)
 - Parses source files in-process using go-tree-sitter (28 languages)
 - Generates embeddings via Ollama
-- Persists indexed artifacts to PostgreSQL and vectors to Qdrant
+- Generates LLM-powered file descriptions via Ollama
+- Persists indexed artifacts and file descriptions to PostgreSQL and vectors to Qdrant
 - Publishes lifecycle events over Redis pub/sub
 
 The worker does not expose public HTTP endpoints. Its operational state is surfaced through PostgreSQL job state, Redis pub/sub events, and the Redis worker registry.
@@ -51,6 +52,7 @@ HTML, CSS, SCSS, JSON, YAML, TOML, Markdown, XML
 | Database | PostgreSQL (pgx/v5, sqlc) |
 | Parser | go-tree-sitter (CGO, 28 grammars) |
 | Embeddings | Ollama (jina-embeddings-v2-base-en) |
+| LLM | Ollama (configurable model) |
 | Vectors | Qdrant |
 | Events | Redis pub/sub |
 
@@ -63,10 +65,12 @@ backend-worker/
     app/                              # Application bootstrap and wiring
     artifact/                         # PostgreSQL artifact writer
     config/                           # Environment-driven configuration
+    description/                      # File description writer and schema
     embedding/                        # Ollama embedding client
     execution/                        # Execution context loader
     gitclient/                        # Git operations (clone, fetch, diff, log)
     indexing/                         # Storage pipeline + import resolution
+    llmclient/                        # Provider-agnostic LLM completion client
     logger/                           # Structured logging (slog)
     notify/                           # Redis pub/sub event publisher
     parser/
@@ -89,6 +93,7 @@ backend-worker/
       task.go                         # WorkflowTask type
       fullindex/handler.go            # Full-index workflow
       incremental/handler.go          # Incremental-index workflow
+      describe/handler.go             # File description workflow (full, incremental, single-file)
       commits/indexer.go              # Git commit history indexer
     workspace/                        # Workspace preparation
   Dockerfile
@@ -112,6 +117,11 @@ backend-worker/
 | 11 | Incremental-Index Workflow | 04, 09, 10 |
 | 12 | Commit Indexing Workflow | 10, 11 |
 | 13 | Event Publishing & Multi-Worker Safety | 01, 02, 10 |
+| 14 | Stuck-Job Reaper Core & Worker Startup Sweep | 02, 03, 13 |
+| 15 | LLM Client Package | -- |
+| 16 | Description Schema, DB Migration & Storage Layer | -- |
+| 17 | Description Workflow Handler (Full & Single-File) | 15, 16 |
+| 18 | Incremental Description Workflow | 17 |
 
 ### Cross-Service Contracts
 
@@ -136,6 +146,9 @@ Each worker publishes ephemeral status (`starting`, `idle`, `busy`, `draining`) 
 | `internal/parser/engine/engine.go` | Parser engine pipeline |
 | `internal/workflow/fullindex/handler.go` | Full-index workflow |
 | `internal/workflow/incremental/handler.go` | Incremental-index workflow |
+| `internal/workflow/describe/handler.go` | File description workflow |
+| `internal/llmclient/client.go` | LLM completion interface |
+| `internal/description/writer.go` | File description persistence |
 | `internal/indexing/pipeline.go` | Storage pipeline |
 | `internal/indexing/resolve.go` | Import resolution |
 

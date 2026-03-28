@@ -5,7 +5,7 @@ Done
 
 ## Role
 
-Go HTTP API service serving as the platform core. Listens on port 8080 via a Chi v5 router with a full middleware chain (requestid, logging, metrics, recover, CORS, bodylimit). Handles user identity, project lifecycle, SSH key management, API key authentication, provider settings, index job orchestration, real-time SSE events, and query execution for MCP tools.
+Go HTTP API service serving as the platform core. Listens on port 8080 via a Chi v5 router with a full middleware chain (requestid, logging, metrics, recover, CORS, bodylimit). Handles user identity, project lifecycle, SSH key management, API key authentication, provider settings, job orchestration (indexing and file description), real-time SSE events, and query execution for MCP tools.
 
 ## Tech Stack
 
@@ -78,6 +78,8 @@ tests/
 | 14 | -- | File structure and content endpoints | 11 |
 | 15 | -- | Commit history and diff endpoints | 11 |
 | 16 | -- | Platform admin and global settings | 02, 06, 08, 09 |
+| 17 | `17-lazy-job-reaper` | Lazy job reaper (read-path crash detection) | 11 |
+| 18 | `18-unified-action-endpoint` | Unified action endpoint & description read endpoints | 11, 09 |
 
 ## API Route Summary
 
@@ -110,6 +112,6 @@ tests/
 - Worker status: `GET /v1/platform-management/workers`
 
 ### Project-Scoped (dual auth: session or API key)
-- Member-level read: `GET /v1/projects/{id}`, members, jobs, SSH key, query/search, symbols, dependencies, structure, files, conventions, commits, settings read
-- Admin-level: `POST /v1/projects/{id}/index`, `PATCH`, SSH key PUT/DELETE, members POST/PATCH, settings write, project API keys
+- Member-level read: `GET /v1/projects/{id}`, members, jobs, SSH key, query/search, symbols, dependencies, structure, files, file descriptions, conventions, commits, settings read
+- Admin-level: `POST /v1/projects/{id}/action` (unified job trigger: indexing + description), `PATCH`, SSH key PUT/DELETE, members POST/PATCH, settings write, project API keys
 - Owner-level: `DELETE /v1/projects/{id}`

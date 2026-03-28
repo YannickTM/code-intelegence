@@ -43,7 +43,7 @@ None (root ticket)
 /projects/new                  Create project wizard (4-step assistant)
 /projects/:id                  Project detail — Overview tab (default)
 /projects/:id/file             File detail viewer with analysis cards
-/projects/:id/jobs             Indexing jobs tab
+/projects/:id/jobs             Actions tab (jobs + triggers)
 /projects/:id/search           Full-text code search tab
 /projects/:id/symbols          Symbol browser tab
 /projects/:id/commits          Commit history tab
@@ -95,6 +95,15 @@ All tRPC procedures run server-side and call `apiCall()` to the Go backend with 
 | 05-project-providers-keys | Provider Settings & API Keys | Embedding/LLM config, project API keys |
 | 06-indexing-monitor | Indexing Jobs Monitor | Jobs table, status badges, polling |
 | 07-code-search | Full-Text Code Search | Search UI, filters, highlighted results |
+| 08-symbol-browser | Symbol Browser | Symbol list, search, detail view |
+| 09-file-browser | File Browser & Viewer | File tree, code viewer, breadcrumbs |
+| 10-file-analysis-cards | File Detail V2 Analysis Cards | Sidebar cards: facts, exports, diagnostics, history, refs, JSX, network |
+| 11-dependency-graph | Dependency Graph | Interactive dependency visualization |
+| 12-commit-browser | Commit History Browser | Commit list, diffs, file changes |
+| 13-user-settings | User Settings | Profile, SSH keys, API keys |
+| 14-platform-admin | Platform Administration | User management, provider settings, worker status |
+| 15-actions-tab | Actions Tab & Unified Job Trigger | Rename Indexing → Actions, job trigger UI for all types |
+| 16-file-description-card | File Description Card & Detail Modal | Real AI description card, backend integration, detail dialog |
 
 ## Key Files
 
