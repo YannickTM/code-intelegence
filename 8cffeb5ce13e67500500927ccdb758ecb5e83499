@@ -1,0 +1,43 @@
+concept/tickets/backend-api/18-unified-action-endpoint.md
+  df46f026e6bfa222 1-227
+concept/tickets/backend-worker/16-description-schema.md
+  df46f026e6bfa222 1-307
+concept/tickets/backend-worker/17-description-handler.md
+  df46f026e6bfa222 1-170
+concept/tickets/backend-worker/18-incremental-description.md
+  df46f026e6bfa222 1-149
+concept/tickets/backend-api/00-overview.md
+  df46f026e6bfa222 8,81-82,115-116
+concept/09-file-description-pipeline.md
+  df46f026e6bfa222 1-691
+concept/tickets/backoffice/00-overview.md
+  df46f026e6bfa222 46,98-106
+concept/tickets/backend-worker/15-llm-client.md
+  df46f026e6bfa222 1-120
+concept/tickets/backend-worker/00-overview.md
+  df46f026e6bfa222 20,23-24,55,68,73,96,120-124,149-151
+concept/tickets/backoffice/16-file-description-card.md
+  df46f026e6bfa222 1-236
+concept/tickets/backoffice/15-actions-tab.md
+  df46f026e6bfa222 1-187
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "8cffeb5ce13e67500500927ccdb758ecb5e83499",
+  "prompts": {
+    "df46f026e6bfa222": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4757abd0-0f5c-4237-8a5c-fb6ec6baed78",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Yannick <20882309+YannickTM@users.noreply.github.com>",
+      "messages": [],
+      "total_additions": 2124,
+      "total_deletions": 13,
+      "accepted_lines": 2117,
+      "overriden_lines": 0
+    }
+  }
+}
